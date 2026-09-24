@@ -1,0 +1,1798 @@
+<title>TravelApp</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --bg:#FFFAE0; --surface:#FFFFFF; --surface-alt:#FDF4D6;
+    --ink:#1B2420; --ink-soft:#5C6960; --ink-faint:#93A199;
+    --line:#DBE3D9;
+    --accent:#FF9BCB; --accent-ink:#7A1148; --accent-soft:#FFE9F3;
+    --amber:#B96A21; --amber-soft:#F4E6D3;
+    --red:#AD4632; --red-soft:#F3DFD9;
+    --blue:#33628F; --blue-soft:#DEE8F1;
+    --violet:#6E5498; --violet-soft:#E7E1F0;
+    --slate:#5B6572; --slate-soft:#E4E6E9;
+    --teal:#1E7F82; --teal-soft:#DCEEEE;
+    --radius:16px; --radius-sm:9px;
+    --shadow:0 1px 2px rgba(20,26,23,.05), 0 10px 28px -14px rgba(20,26,23,.22);
+    --font-display:'Newsreader',Georgia,serif;
+    --font-body:'IBM Plex Sans',-apple-system,BlinkMacSystemFont,sans-serif;
+    --font-mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#121714; --surface:#1A211D; --surface-alt:#202823;
+      --ink:#EAEFE9; --ink-soft:#A9B6AD; --ink-faint:#69786E;
+      --line:#2A342E;
+      --accent:#FFAAD4; --accent-ink:#3D0A22; --accent-soft:#40182B;
+      --amber:#E3A15C; --amber-soft:#382A1B;
+      --red:#E28571; --red-soft:#3A241E;
+      --blue:#8AB2DA; --blue-soft:#1E2C39;
+      --violet:#B7A2DD; --violet-soft:#291F39;
+      --slate:#AEB7C1; --slate-soft:#252B32;
+      --teal:#6FCFD1; --teal-soft:#1B3536;
+      --shadow:0 1px 2px rgba(0,0,0,.35), 0 10px 28px -14px rgba(0,0,0,.6);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#121714; --surface:#1A211D; --surface-alt:#202823;
+    --ink:#EAEFE9; --ink-soft:#A9B6AD; --ink-faint:#69786E;
+    --line:#2A342E;
+    --accent:#FFAAD4; --accent-ink:#3D0A22; --accent-soft:#40182B;
+    --amber:#E3A15C; --amber-soft:#382A1B;
+    --red:#E28571; --red-soft:#3A241E;
+    --blue:#8AB2DA; --blue-soft:#1E2C39;
+    --violet:#B7A2DD; --violet-soft:#291F39;
+    --slate:#AEB7C1; --slate-soft:#252B32;
+      --teal:#6FCFD1; --teal-soft:#1B3536;
+    --shadow:0 1px 2px rgba(0,0,0,.35), 0 10px 28px -14px rgba(0,0,0,.6);
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    background:var(--bg); color:var(--ink); font-family:var(--font-body);
+    padding-inline:16px; min-height:100%;
+  }
+  h1,h2,h3{font-family:var(--font-display); font-weight:600; text-wrap:balance; margin:0;}
+  a{color:inherit;}
+  button{font-family:inherit;}
+  input,select,textarea{font-family:inherit; color:inherit;}
+  .mono{font-family:var(--font-mono);}
+
+  #app{max-width:920px; margin:0 auto; padding-block:18px 64px;}
+
+  /* ---------- topbar ---------- */
+  .topbar{
+    position:sticky; top:env(safe-area-inset-top,0px); z-index:20;
+    display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+    padding-block:12px; margin-bottom:22px;
+    background:var(--bg);
+  }
+  .brand{display:flex; align-items:center; gap:8px; font-family:var(--font-display); font-size:1.35rem; font-weight:600;}
+  .brand .mark{font-size:1.25rem;}
+  .nav{display:flex; gap:6px; background:var(--surface-alt); padding:4px; border-radius:999px; margin-left:4px;}
+  .nav button{
+    border:none; background:none; padding:7px 16px; border-radius:999px; font-size:.85rem; font-weight:500;
+    color:var(--ink-soft); cursor:pointer; transition:background .15s,color .15s;
+  }
+  .nav button.active{background:var(--accent); color:var(--accent-ink);}
+  .who{margin-left:auto; display:flex; align-items:center; gap:8px; font-size:.82rem; color:var(--ink-soft);}
+  .avatar{width:26px; height:26px; border-radius:50%; object-fit:cover; background:var(--surface-alt); flex:none;}
+  .demo-pill{font-size:.7rem; text-transform:uppercase; letter-spacing:.06em; background:var(--amber-soft); color:var(--amber); padding:3px 9px; border-radius:999px; font-weight:600;}
+
+  .banner{
+    display:flex; gap:10px; align-items:flex-start; background:var(--amber-soft); color:var(--ink);
+    border:1px solid color-mix(in srgb, var(--amber) 35%, transparent); border-radius:var(--radius-sm);
+    padding:11px 14px; margin-bottom:20px; font-size:.85rem; line-height:1.45;
+  }
+  .banner b{color:var(--amber);}
+
+  /* ---------- section heads ---------- */
+  .section-head{display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:14px; flex-wrap:wrap;}
+  .section-head h1{font-size:1.6rem;}
+  .eyebrow{font-size:.72rem; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-faint); font-weight:600; margin-bottom:4px;}
+
+  .btn{
+    border:1px solid var(--line); background:var(--surface); color:var(--ink); font-size:.85rem; font-weight:500;
+    padding:9px 16px; border-radius:999px; cursor:pointer; display:inline-flex; align-items:center; gap:6px;
+    transition:border-color .15s, background .15s;
+  }
+  .btn:hover{border-color:var(--ink-faint);}
+  .btn-primary{background:var(--accent); color:var(--accent-ink); border-color:var(--accent);}
+  .btn-primary:hover{filter:brightness(1.05);}
+  .btn-ghost{border-color:transparent; background:transparent;}
+  .btn-ghost:hover{background:var(--surface-alt); border-color:transparent;}
+  .btn-sm{padding:6px 12px; font-size:.78rem;}
+  .btn-danger{color:var(--red);}
+
+  /* ---------- trip cards grid ---------- */
+  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:14px;}
+  .trip-card{
+    background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:16px;
+    display:flex; flex-direction:column; gap:10px; cursor:pointer; box-shadow:var(--shadow); text-align:left;
+    transition:transform .12s; position:relative; overflow:hidden;
+  }
+  .trip-card:hover{transform:translateY(-2px);}
+  .trip-cover{font-size:1.7rem; line-height:1;}
+  .trip-card h3{font-size:1.15rem;}
+  .trip-dest{color:var(--ink-soft); font-size:.85rem;}
+  .trip-meta{display:flex; flex-wrap:wrap; gap:6px; margin-top:auto; padding-top:8px;}
+  .chip{font-size:.72rem; font-weight:500; padding:3px 9px; border-radius:999px; background:var(--surface-alt); color:var(--ink-soft); display:inline-flex; align-items:center; gap:4px;}
+  .chip.mono{font-family:var(--font-mono);}
+  .author-row{display:flex; align-items:center; gap:6px; font-size:.78rem; color:var(--ink-faint); margin-top:2px;}
+  .trip-card.has-image{
+    min-height:210px; justify-content:center; align-items:center; text-align:center;
+    background-size:cover; background-position:center; border-color:transparent;
+  }
+  .trip-card.has-image::before{
+    content:""; position:absolute; inset:0; z-index:0;
+    background:linear-gradient(180deg, rgba(10,14,12,.25) 0%, rgba(10,14,12,.4) 100%);
+  }
+  .trip-card.has-image > *{position:relative; z-index:1;}
+  .trip-card.has-image .trip-cover{
+    position:absolute; top:14px; left:14px; z-index:1; background:rgba(255,255,255,.85); color:var(--ink);
+    width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.15rem;
+  }
+  .trip-card.has-image .trip-meta{margin-top:2px; justify-content:center;}
+  .trip-caption{display:flex; flex-direction:column; gap:3px;}
+  .trip-card.has-image .trip-caption{
+    background:rgba(10,14,12,.55); backdrop-filter:blur(3px); -webkit-backdrop-filter:blur(3px);
+    padding:10px 18px; border-radius:12px; max-width:92%;
+  }
+  .trip-card.has-image h3, .trip-card.has-image .trip-dest, .trip-card.has-image .author-row{color:#fff;}
+  .trip-card.has-image .author-row{justify-content:center;}
+  .trip-card.has-image .chip{background:rgba(255,255,255,.22); color:#fff;}
+
+  .empty{
+    border:1px dashed var(--line); border-radius:var(--radius); padding:36px 20px; text-align:center;
+    color:var(--ink-soft); font-size:.9rem;
+  }
+
+  /* ---------- explorar filter bar ---------- */
+  .filterbar{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;}
+  .filterbar input[type=search]{
+    flex:1; min-width:160px; border:1px solid var(--line); background:var(--surface); border-radius:999px;
+    padding:9px 14px; font-size:.85rem; color:var(--ink);
+  }
+  .filterbar .btn.active{background:var(--accent); color:var(--accent-ink); border-color:var(--accent);}
+  .distance-badge{font-family:var(--font-mono); font-size:.72rem; background:var(--accent-soft); color:var(--accent); padding:3px 8px; border-radius:999px;}
+
+  /* ---------- trip detail ---------- */
+  .back-link{display:inline-flex; align-items:center; gap:5px; color:var(--ink-soft); font-size:.82rem; text-decoration:none; margin-bottom:14px; cursor:pointer; border:none; background:none; padding:0;}
+  .back-link:hover{color:var(--ink);}
+  .trip-header{display:flex; gap:16px; align-items:flex-start; margin-bottom:6px; flex-wrap:wrap;}
+  .trip-header .trip-cover{font-size:2.4rem;}
+  .trip-header h1{font-size:1.85rem;}
+  .trip-header .trip-dest{font-size:.95rem;}
+  .trip-header .actions{margin-left:auto; display:flex; gap:8px; flex-wrap:wrap;}
+  .readonly-note{font-size:.78rem; color:var(--ink-faint); margin-top:2px;}
+  .date-range{font-size:.8rem; color:var(--ink-soft); margin-top:4px;}
+
+  .tabs{display:flex; gap:4px; border-bottom:1px solid var(--line); margin:20px 0 18px;}
+  .tabs button{
+    border:none; background:none; padding:9px 4px; margin-right:18px; font-size:.9rem; font-weight:500;
+    color:var(--ink-faint); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px;
+  }
+  .tabs button.active{color:var(--ink); border-bottom-color:var(--accent);}
+
+  /* day strip */
+  .day-strip{display:flex; gap:8px; overflow-x:auto; padding-bottom:6px; margin-bottom:18px; scrollbar-width:thin;}
+  .day-tab{
+    flex:none; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
+    width:64px; padding:9px 4px; border-radius:var(--radius-sm); border:1px solid var(--line); background:var(--surface);
+    cursor:pointer; font-size:.72rem; color:var(--ink-soft);
+  }
+  .day-tab .d-num{font-family:var(--font-mono); font-weight:600; font-size:.95rem; color:var(--ink);}
+  .day-tab.active{background:var(--accent); border-color:var(--accent);}
+  .day-tab.active, .day-tab.active .d-num{color:var(--accent-ink);}
+  .day-tab.has-color{background:color-mix(in srgb, var(--day-color) 32%, var(--surface)); border-color:color-mix(in srgb, var(--day-color) 60%, var(--line));}
+  .day-tab.has-color.active{background:var(--accent); border-color:var(--accent); box-shadow:0 0 0 2px var(--day-color);}
+  .day-tab-wrap{position:relative; flex:none; display:flex; flex-direction:column; align-items:center; gap:4px;}
+  .day-color-bar{width:64px; height:4px; border-radius:3px; background:var(--day-color, transparent);}
+  .day-heading{font-size:1.1rem; margin:14px 0 -6px;}
+  .day-color-btn{
+    width:18px; height:18px; border-radius:50%; border:1.5px solid var(--surface); box-shadow:0 0 0 1px var(--line);
+    background:var(--day-color, var(--surface-alt)); cursor:pointer; padding:0;
+  }
+
+  /* view toggle (lista / calendario) */
+  .view-toggle{display:flex; gap:6px; background:var(--surface-alt); padding:4px; border-radius:999px; width:fit-content; margin-bottom:16px;}
+  .view-toggle button{border:none; background:none; padding:7px 14px; border-radius:999px; font-size:.82rem; font-weight:500; color:var(--ink-soft); cursor:pointer;}
+  .view-toggle button.active{background:var(--accent); color:var(--accent-ink);}
+
+  /* calendar view */
+  .cal-month{margin-bottom:22px; width:100%; max-width:100%;}
+  .cal-month-title{font-size:1.05rem; text-transform:capitalize; margin-bottom:10px;}
+  .cal-weekdays{display:grid; grid-template-columns:repeat(7,1fr); gap:4px; margin-bottom:6px; width:100%;}
+  .cal-weekdays span{font-size:.68rem; text-align:center; color:var(--ink-faint); text-transform:uppercase; letter-spacing:.04em;}
+  .cal-grid{display:grid; grid-template-columns:repeat(7, minmax(0,1fr)); gap:4px; width:100%;}
+  .cal-cell{
+    min-height:52px; border-radius:var(--radius-sm); border:1px solid var(--line); background:var(--surface);
+    display:flex; flex-direction:column; align-items:center; justify-content:flex-start; gap:2px; padding:4px 2px;
+    font-size:.72rem; color:var(--ink-soft); cursor:default; position:relative; width:100%; min-width:0; overflow:hidden;
+  }
+  .cal-cell.cal-empty{border:none; background:none; min-height:0;}
+  .cal-cell.out-trip{color:var(--ink-faint); opacity:.5;}
+  .cal-cell.in-trip{
+    cursor:pointer; border-color:color-mix(in srgb, var(--day-color, var(--accent)) 55%, var(--line));
+    background:color-mix(in srgb, var(--day-color, var(--accent-soft)) 28%, var(--surface));
+  }
+  .cal-cell.in-trip:hover{background:color-mix(in srgb, var(--day-color, var(--accent-soft)) 50%, var(--surface));}
+  .cal-daynum{font-family:var(--font-mono); font-weight:600; font-size:.9rem; color:var(--ink);}
+  .cal-dlabel{font-size:.6rem; color:var(--ink-soft); max-width:100%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .cal-dlabel.has-title{font-size:.66rem; font-weight:700; color:var(--ink);}
+  .cal-hint{margin-bottom:12px;}
+  .cal-event{
+    max-width:100%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    font-size:.6rem; font-weight:600; padding:2px 5px; border-radius:5px;
+    background:var(--surface); color:var(--ink); box-shadow:0 0 0 1px var(--line);
+  }
+  .cal-event-more{background:none; box-shadow:none; font-weight:500; color:var(--ink-faint); padding:0 5px;}
+
+  /* day popover */
+  .day-popover{
+    position:fixed; z-index:60; width:290px; max-width:92vw; max-height:72vh; overflow-y:auto;
+    background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); padding:14px;
+  }
+  .popover-head{display:flex; align-items:flex-start; gap:8px; margin-bottom:10px;}
+  .popover-head h3{font-size:1.05rem; flex:1;}
+  .popover-head input[type=color]{width:26px; height:26px; border:none; border-radius:6px; padding:0; background:none; cursor:pointer;}
+  .pop-title-input{width:100%; border:1px solid var(--line); border-radius:var(--radius-sm); padding:7px 9px; font-size:.85rem; font-weight:500; background:var(--surface); color:var(--ink); margin-bottom:10px;}
+  .pop-title-readonly{font-size:.85rem; font-weight:500; color:var(--ink-soft); margin-bottom:10px;}
+  .pop-swatches{display:flex; flex-wrap:wrap; gap:6px; margin:-4px 0 10px;}
+  .pop-swatch{
+    width:20px; height:20px; border-radius:50%; padding:0; cursor:pointer;
+    background:var(--sw-color); border:1.5px solid var(--surface); box-shadow:0 0 0 1px var(--line);
+  }
+  .pop-swatch:hover{box-shadow:0 0 0 1.5px var(--ink-faint);}
+  .day-popover .timeline{margin-bottom:4px;}
+  .day-popover .titem{padding:8px 0;}
+
+  /* timeline */
+  .timeline{display:flex; flex-direction:column;}
+  .titem{display:flex; gap:14px; padding:12px 0; border-bottom:1px solid var(--line); position:relative;}
+  .titem:last-child{border-bottom:none;}
+  .titem .time{width:52px; flex:none; font-family:var(--font-mono); font-size:.85rem; font-weight:600; padding-top:2px;}
+  .titem .dot{width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:.95rem; flex:none;}
+  .titem .body{flex:1; min-width:0;}
+  .titem .ttitle{font-weight:600; font-size:.95rem;}
+  .titem .tplace{font-size:.82rem; color:var(--ink-soft); margin-top:1px;}
+  .titem .tnotes{font-size:.8rem; color:var(--ink-faint); margin-top:3px;}
+  .titem .row-actions{display:flex; gap:2px; flex:none; opacity:0; transition:opacity .1s;}
+  .titem:hover .row-actions{opacity:1;}
+  .icon-btn{border:none; background:none; cursor:pointer; color:var(--ink-faint); padding:4px; border-radius:6px; font-size:.85rem;}
+  .icon-btn:hover{background:var(--surface-alt); color:var(--ink);}
+
+  .dot.type-vuelo{background:var(--blue-soft); color:var(--blue);}
+  .dot.type-comida{background:var(--amber-soft); color:var(--amber);}
+  .dot.type-actividad{background:var(--accent-soft); color:var(--accent);}
+  .dot.type-transporte{background:var(--violet-soft); color:var(--violet);}
+  .dot.type-alojamiento{background:var(--slate-soft); color:var(--slate);}
+  .dot.type-tour{background:var(--teal-soft); color:var(--teal);}
+  .tour-chip{font-family:var(--font-mono); font-size:.68rem; font-weight:600; padding:3px 8px; border-radius:999px; background:var(--teal-soft); color:var(--teal);}
+
+  .add-row{margin-top:4px;}
+
+  /* flight (boarding pass) card */
+  .flight-list{display:flex; flex-direction:column; gap:14px;}
+  .flight-card{
+    display:flex; background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+    box-shadow:var(--shadow); overflow:hidden;
+  }
+  .flight-main{flex:1; padding:16px 18px; min-width:0;}
+  .flight-top{display:flex; align-items:center; gap:10px; margin-bottom:10px; flex-wrap:wrap;}
+  .flight-airline{font-weight:600; font-size:.95rem;}
+  .flight-num{font-family:var(--font-mono); color:var(--ink-soft); font-size:.85rem;}
+  .flight-route{display:flex; align-items:center; gap:10px; margin-bottom:8px;}
+  .flight-route .code{font-family:var(--font-mono); font-size:1.3rem; font-weight:600;}
+  .flight-route .arrow{color:var(--ink-faint); font-size:1.1rem;}
+  .flight-city{font-size:.72rem; color:var(--ink-faint);}
+  .flight-times{display:flex; gap:10px 18px; flex-wrap:wrap; font-size:.82rem; color:var(--ink-soft); font-family:var(--font-mono);}
+  .flight-extra{font-size:.78rem; color:var(--ink-faint); margin-top:8px;}
+  .flight-stub{
+    flex:none; width:110px; border-left:2px dashed var(--line); padding:16px 14px; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:8px; position:relative; background:var(--surface-alt);
+  }
+  .flight-stub::before,.flight-stub::after{
+    content:""; position:absolute; left:-9px; width:18px; height:18px; border-radius:50%; background:var(--bg);
+  }
+  .flight-stub::before{top:-9px;} .flight-stub::after{bottom:-9px;}
+  .status-pill{font-size:.7rem; font-weight:600; padding:4px 10px; border-radius:999px; text-align:center;}
+  .flight-actions{display:flex; gap:4px;}
+
+  /* tour (multi-day activity) card */
+  .tour-list{display:flex; flex-direction:column; gap:12px;}
+  .tour-card{
+    background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:16px;
+    box-shadow:var(--shadow); display:flex; gap:14px; align-items:flex-start; flex-wrap:wrap;
+  }
+  .tour-card .tour-main{flex:1; min-width:200px;}
+  .tour-card h3{font-size:1.05rem; margin-bottom:4px;}
+  .tour-card .trip-dest{margin-bottom:6px;}
+  .tour-card .tnotes{font-size:.82rem; color:var(--ink-faint); margin-top:6px;}
+
+  /* forms / dialogs */
+  dialog{
+    border:none; border-radius:var(--radius); padding:0; width:min(92vw,460px); max-height:88vh;
+    background:var(--surface); color:var(--ink); box-shadow:var(--shadow);
+  }
+  dialog::backdrop{background:rgba(10,14,12,.45);}
+  .dlg-head{display:flex; align-items:center; justify-content:space-between; padding:16px 20px; border-bottom:1px solid var(--line);}
+  .dlg-head h2{font-size:1.15rem;}
+  .dlg-body{padding:18px 20px; overflow-y:auto; max-height:calc(88vh - 130px); display:flex; flex-direction:column; gap:14px;}
+  .dlg-foot{padding:14px 20px; border-top:1px solid var(--line); display:flex; justify-content:flex-end; gap:8px;}
+  .field{display:flex; flex-direction:column; gap:5px;}
+  .field label{font-size:.75rem; font-weight:600; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-soft);}
+  .field input, .field select, .field textarea{
+    border:1px solid var(--line); border-radius:var(--radius-sm); padding:9px 11px; font-size:.9rem; background:var(--surface); color:var(--ink);
+    width:100%;
+  }
+  .field textarea{resize:vertical; min-height:56px;}
+  .field-row{display:flex; gap:10px;}
+  .field-row .field{flex:1;}
+  .cover-pick{display:flex; gap:6px; flex-wrap:wrap;}
+  .cover-pick button{
+    font-size:1.15rem; padding:6px 10px; border-radius:var(--radius-sm); border:1.5px solid var(--line); background:var(--surface); cursor:pointer;
+  }
+  .cover-image-row{display:flex; gap:10px; align-items:center; flex-wrap:wrap;}
+  .cover-image-preview{width:64px; height:64px; border-radius:var(--radius-sm); object-fit:cover; border:1px solid var(--line);}
+  .cover-image-controls{display:flex; flex-direction:column; gap:6px; flex:1; min-width:160px;}
+  .cover-image-controls input[type=file]{font-size:.8rem;}
+  .cover-pick button.sel{border-color:var(--accent); background:var(--accent-soft);}
+  .check-row{display:flex; align-items:center; gap:8px; font-size:.85rem;}
+  .check-row input{width:auto;}
+  .hint{font-size:.75rem; color:var(--ink-faint);}
+  .scan-field{background:var(--teal-soft); border:1px solid color-mix(in srgb, var(--teal) 30%, transparent); border-radius:var(--radius-sm); padding:12px; margin-bottom:2px;}
+  .scan-field label{color:var(--teal);}
+  .scan-field input[type=file]{border:none; background:none; padding:4px 0; font-size:.82rem; color:var(--ink);}
+  .scan-field .hint{color:var(--ink-soft);}
+  .scan-field .hint.is-busy{color:var(--teal); font-weight:600;}
+  .scan-field .hint.is-ok{color:var(--accent); font-weight:600;}
+  .scan-field .hint.is-err{color:var(--red); font-weight:600;}
+
+  @media (max-width:480px){
+    .flight-card{flex-direction:column;}
+    .flight-stub{width:auto; flex-direction:row; border-left:none; border-top:2px dashed var(--line); flex-wrap:wrap;}
+    .flight-stub::before,.flight-stub::after{top:-9px; bottom:auto;}
+    .flight-stub::before{left:-9px;} .flight-stub::after{left:auto; right:-9px;}
+    .who span.name{display:none;}
+    .cal-dlabel{font-size:.52rem;}
+    .cal-grid{gap:4px;}
+    .cal-cell{font-size:.66rem; padding:2px; min-height:50px;}
+    .cal-daynum{font-size:.8rem;}
+    .cal-event{font-size:.54rem; padding:1px 3px;}
+    .field-row{flex-direction:column; gap:14px;}
+    .day-color-btn{width:22px; height:22px;}
+    .trip-header h1{font-size:1.55rem;}
+    .flight-route .code{font-size:1.1rem;}
+  }
+</style>
+
+<div id="app">
+  <div class="topbar">
+    <div class="brand"><span class="mark">🧭</span>TravelApp</div>
+    <nav class="nav" id="nav">
+      <button data-go="/mios">Mis viajes</button>
+      <button data-go="/explorar">Explorar</button>
+    </nav>
+    <div class="who" id="who"></div>
+  </div>
+  <div id="view"></div>
+</div>
+<div id="day-popover" class="day-popover" hidden></div>
+
+<dialog id="dlg-trip">
+  <form method="dialog" id="form-trip">
+    <div class="dlg-head"><h2 id="dlg-trip-title">Nuevo viaje</h2><button type="button" class="icon-btn" data-close>✕</button></div>
+    <div class="dlg-body">
+      <div class="field"><label for="f-title">Nombre del viaje</label><input id="f-title" required placeholder="Escapada a Kioto"></div>
+      <div class="field">
+        <label for="f-destination">Destino</label>
+        <input id="f-destination" required placeholder="Ciudad, región o país" list="destinations-list" autocomplete="off">
+        <datalist id="destinations-list"></datalist>
+        <span class="hint">Elige una ciudad de la lista para ubicarla en "Explorar cerca de ti", o escribe la tuya.</span>
+      </div>
+      <div class="field"><label for="f-country">País</label><input id="f-country" placeholder="Japón"></div>
+      <div class="field-row">
+        <div class="field"><label for="f-start">Salida</label><input type="date" id="f-start" required></div>
+        <div class="field"><label for="f-end">Vuelta</label><input type="date" id="f-end" required></div>
+      </div>
+      <p class="hint" id="f-shift-hint" hidden>Si cambias la fecha de salida, tu itinerario día a día se mueve con el viaje (Día 1 sigue siendo Día 1). Los vuelos y tours ya guardados no se mueven solos, porque son fechas reales de reserva.</p>
+      <div class="field">
+        <label>Portada</label>
+        <div class="cover-pick" id="cover-pick"></div>
+      </div>
+      <div class="field" id="f-image-field" hidden>
+        <label for="f-image-input">Imagen de fondo (opcional)</label>
+        <div class="cover-image-row">
+          <img id="f-image-preview" class="cover-image-preview" hidden>
+          <div class="cover-image-controls">
+            <input type="file" id="f-image-input" accept="image/png,image/jpeg,image/webp">
+            <button type="button" class="btn btn-sm btn-ghost" id="f-image-remove" hidden>Quitar imagen</button>
+          </div>
+        </div>
+        <span class="hint" id="f-image-status"></span>
+      </div>
+      <label class="check-row"><input type="checkbox" id="f-public" checked> Visible en "Explorar" para otras personas viajeras</label>
+    </div>
+    <div class="dlg-foot">
+      <button type="button" class="btn" data-close>Cancelar</button>
+      <button type="submit" class="btn btn-primary">Guardar viaje</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="dlg-item">
+  <form method="dialog" id="form-item">
+    <div class="dlg-head"><h2 id="dlg-item-title">Añadir al itinerario</h2><button type="button" class="icon-btn" data-close>✕</button></div>
+    <div class="dlg-body">
+      <div class="field-row">
+        <div class="field" id="i-time-field"><label for="i-time">Hora</label><input type="time" id="i-time" required></div>
+        <div class="field"><label for="i-type">Tipo</label>
+          <select id="i-type">
+            <option value="actividad">🧭 Actividad</option>
+            <option value="comida">🍽️ Comida</option>
+            <option value="transporte">🚗 Transporte</option>
+            <option value="alojamiento">🛏️ Alojamiento</option>
+            <option value="vuelo">✈️ Vuelo</option>
+            <option value="tour">🎟️ Tour (varios días)</option>
+          </select>
+        </div>
+      </div>
+      <div class="field" id="i-flight-field" hidden>
+        <label for="i-flight">Vuelo</label>
+        <select id="i-flight"><option value="">— Elegir un vuelo guardado —</option></select>
+        <span class="hint" id="i-flight-hint"></span>
+      </div>
+      <div class="field" id="i-tour-field" hidden>
+        <label for="i-tour">Tour / actividad de varios días</label>
+        <select id="i-tour"><option value="">— Elegir un tour guardado —</option></select>
+        <span class="hint" id="i-tour-hint">Se añadirá automáticamente a todos los días que dure el tour.</span>
+      </div>
+      <div class="field" id="i-title-field"><label for="i-title">Qué</label><input id="i-title" required placeholder="Visita al templo Fushimi Inari"></div>
+      <div class="field"><label for="i-place">Lugar</label><input id="i-place" placeholder="Dirección o nombre del sitio"></div>
+      <div class="field"><label for="i-notes">Notas</label><textarea id="i-notes" placeholder="Reserva, precio, recomendación..."></textarea></div>
+    </div>
+    <div class="dlg-foot">
+      <button type="button" class="btn btn-danger btn-ghost" id="btn-del-item" hidden>Eliminar</button>
+      <button type="button" class="btn" data-close>Cancelar</button>
+      <button type="submit" class="btn btn-primary">Guardar</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="dlg-flight">
+  <form method="dialog" id="form-flight">
+    <div class="dlg-head"><h2 id="dlg-flight-title">Añadir vuelo</h2><button type="button" class="icon-btn" data-close>✕</button></div>
+    <div class="dlg-body">
+      <div class="field scan-field" id="fl-scan-field" hidden>
+        <label for="fl-scan-input">Rellenar automáticamente desde una foto</label>
+        <input type="file" id="fl-scan-input" accept="image/png,image/jpeg,image/webp,image/gif,application/pdf">
+        <span class="hint" id="fl-scan-status">Sube una captura o foto del billete (JPG, PNG o WebP) y rellenamos aerolínea, ruta, horarios y escalas. Los PDF no se pueden leer aquí: haz una captura de pantalla del PDF y sube esa imagen.</span>
+      </div>
+      <div class="field-row">
+        <div class="field"><label for="fl-airline">Aerolínea</label><input id="fl-airline" required placeholder="Iberia"></div>
+        <div class="field"><label for="fl-num">Nº vuelo</label><input id="fl-num" required placeholder="IB3170"></div>
+      </div>
+      <p class="hint" id="fl-autofill-hint">Si alguien ya guardó este mismo número de vuelo en algún viaje, rellenamos ruta y horarios por ti.</p>
+      <div class="field-row">
+        <div class="field"><label for="fl-from">Origen (código)</label><input id="fl-from" required placeholder="MAD" maxlength="4" style="text-transform:uppercase"></div>
+        <div class="field"><label for="fl-to">Destino (código)</label><input id="fl-to" required placeholder="NRT" maxlength="4" style="text-transform:uppercase"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label for="fl-fromcity">Ciudad origen</label><input id="fl-fromcity" placeholder="Madrid"></div>
+        <div class="field"><label for="fl-tocity">Ciudad destino</label><input id="fl-tocity" placeholder="Tokio"></div>
+      </div>
+      <div class="field"><label for="fl-date">Fecha</label><input type="date" id="fl-date" required></div>
+      <div class="field-row">
+        <div class="field"><label for="fl-dep">Salida</label><input type="time" id="fl-dep" required></div>
+        <div class="field"><label for="fl-arr">Llegada</label><input type="time" id="fl-arr" required></div>
+      </div>
+      <label class="check-row"><input type="checkbox" id="fl-nextday"> Llega al día siguiente (vuelo nocturno)</label>
+      <div class="field-row">
+        <div class="field"><label for="fl-status">Estado</label>
+          <select id="fl-status">
+            <option value="a-tiempo">A tiempo</option>
+            <option value="embarcando">Embarcando</option>
+            <option value="retrasado">Retrasado</option>
+            <option value="puerta-cambiada">Puerta cambiada</option>
+            <option value="cancelado">Cancelado</option>
+          </select>
+        </div>
+        <div class="field"><label for="fl-gate">Puerta / Asiento</label><input id="fl-gate" placeholder="B12 · 14A"></div>
+      </div>
+      <div class="field"><label for="fl-locator">Número de reserva</label><input id="fl-locator" placeholder="Ej. XYZ789" style="text-transform:uppercase"></div>
+      <div class="field"><label for="fl-notes">Notas</label><textarea id="fl-notes" placeholder="Equipaje, extras, información adicional..."></textarea></div>
+      <p class="hint">El estado se actualiza a mano: en cuanto alguien lo cambie aquí, todas las personas que tengan este viaje abierto lo verán al instante.</p>
+    </div>
+    <div class="dlg-foot">
+      <button type="button" class="btn btn-danger btn-ghost" id="btn-del-flight" hidden>Eliminar</button>
+      <button type="button" class="btn" data-close>Cancelar</button>
+      <button type="submit" class="btn btn-primary">Guardar vuelo</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="dlg-tour">
+  <form method="dialog" id="form-tour">
+    <div class="dlg-head"><h2 id="dlg-tour-title">Añadir tour / actividad de varios días</h2><button type="button" class="icon-btn" data-close>✕</button></div>
+    <div class="dlg-body">
+      <div class="field scan-field" id="tr-scan-field" hidden>
+        <label for="tr-scan-input">Rellenar automáticamente desde una foto</label>
+        <input type="file" id="tr-scan-input" accept="image/png,image/jpeg,image/webp,image/gif,application/pdf">
+        <span class="hint" id="tr-scan-status">Sube una captura o foto de la reserva del tour (JPG, PNG o WebP) y rellenamos nombre, duración, lugar y demás datos. Los PDF no se pueden leer aquí: haz una captura de pantalla del PDF y sube esa imagen.</span>
+      </div>
+      <div class="field"><label for="tr-title">Nombre</label><input id="tr-title" required placeholder="Trekking por los Alpes"></div>
+      <div class="field"><label for="tr-place">Lugar</label><input id="tr-place" placeholder="Punto de encuentro o zona"></div>
+      <div class="field-row">
+        <div class="field"><label for="tr-start">Empieza</label><input type="date" id="tr-start" required></div>
+        <div class="field"><label for="tr-end">Termina</label><input type="date" id="tr-end" required></div>
+      </div>
+      <div class="field"><label for="tr-notes">Notas</label><textarea id="tr-notes" placeholder="Guía, precio, qué llevar..."></textarea></div>
+      <p class="hint">Al enlazar este tour desde "Añadir al día", se repartirá automáticamente en todos los días que dure.</p>
+    </div>
+    <div class="dlg-foot">
+      <button type="button" class="btn btn-danger btn-ghost" id="btn-del-tour" hidden>Eliminar</button>
+      <button type="button" class="btn" data-close>Cancelar</button>
+      <button type="submit" class="btn btn-primary">Guardar tour</button>
+    </div>
+  </form>
+</dialog>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------------- reference data ---------------- */
+const DESTINATIONS = [
+["Madrid","España",40.4168,-3.7038],["Barcelona","España",41.3874,2.1686],["Sevilla","España",37.3891,-5.9845],
+["Valencia","España",39.4699,-0.3763],["Bilbao","España",43.2630,-2.9350],["Granada","España",37.1773,-3.5986],
+["Málaga","España",36.7213,-4.4214],["San Sebastián","España",43.3183,-1.9812],["Palma de Mallorca","España",39.5696,2.6502],
+["Santiago de Compostela","España",42.8782,-8.5448],["Lisboa","Portugal",38.7223,-9.1393],["Oporto","Portugal",41.1579,-8.6291],
+["París","Francia",48.8566,2.3522],["Niza","Francia",43.7102,7.2620],["Lyon","Francia",45.7640,4.8357],
+["Roma","Italia",41.9028,12.4964],["Milán","Italia",45.4642,9.1900],["Venecia","Italia",45.4408,12.3155],
+["Florencia","Italia",43.7696,11.2558],["Nápoles","Italia",40.8518,14.2681],["Londres","Reino Unido",51.5072,-0.1276],
+["Edimburgo","Reino Unido",55.9533,-3.1883],["Dublín","Irlanda",53.3498,-6.2603],["Berlín","Alemania",52.5200,13.4050],
+["Múnich","Alemania",48.1351,11.5820],["Viena","Austria",48.2082,16.3738],["Zúrich","Suiza",47.3769,8.5417],
+["Ámsterdam","Países Bajos",52.3676,4.9041],["Bruselas","Bélgica",50.8503,4.3517],["Copenhague","Dinamarca",55.6761,12.5683],
+["Estocolmo","Suecia",59.3293,18.0686],["Oslo","Noruega",59.9139,10.7522],["Reikiavik","Islandia",64.1466,-21.9426],
+["Helsinki","Finlandia",60.1699,24.9384],["Praga","República Checa",50.0755,14.4378],["Budapest","Hungría",47.4979,19.0402],
+["Varsovia","Polonia",52.2297,21.0122],["Cracovia","Polonia",50.0647,19.9450],["Atenas","Grecia",37.9838,23.7275],
+["Santorini","Grecia",36.3932,25.4615],["Estambul","Turquía",41.0082,28.9784],["Marrakech","Marruecos",31.6295,-7.9811],
+["El Cairo","Egipto",30.0444,31.2357],["Ciudad del Cabo","Sudáfrica",-33.9249,18.4241],["Dubái","Emiratos Árabes Unidos",25.2048,55.2708],
+["Tel Aviv","Israel",32.0853,34.7818],["Tokio","Japón",35.6762,139.6503],["Kioto","Japón",35.0116,135.7681],
+["Osaka","Japón",34.6937,135.5023],["Seúl","Corea del Sur",37.5665,126.9780],["Pekín","China",39.9042,116.4074],
+["Shanghái","China",31.2304,121.4737],["Hong Kong","China",22.3193,114.1694],["Bangkok","Tailandia",13.7563,100.5018],
+["Singapur","Singapur",1.3521,103.8198],["Bali","Indonesia",-8.3405,115.0920],["Hanói","Vietnam",21.0278,105.8342],
+["Nueva Delhi","India",28.6139,77.2090],["Katmandú","Nepal",27.7172,85.3240],["Kuala Lumpur","Malasia",3.1390,101.6869],
+["Sídney","Australia",-33.8688,151.2093],["Melbourne","Australia",-37.8136,144.9631],["Auckland","Nueva Zelanda",-36.8485,174.7633],
+["Nueva York","Estados Unidos",40.7128,-74.0060],["Los Ángeles","Estados Unidos",34.0522,-118.2437],["San Francisco","Estados Unidos",37.7749,-122.4194],
+["Miami","Estados Unidos",25.7617,-80.1918],["Chicago","Estados Unidos",41.8781,-87.6298],["Las Vegas","Estados Unidos",36.1699,-115.1398],
+["Toronto","Canadá",43.6532,-79.3832],["Vancouver","Canadá",49.2827,-123.1207],["Ciudad de México","México",19.4326,-99.1332],
+["Cancún","México",21.1619,-86.8515],["Buenos Aires","Argentina",-34.6037,-58.3816],["Río de Janeiro","Brasil",-22.9068,-43.1729],
+["São Paulo","Brasil",-23.5505,-46.6333],["Santiago","Chile",-33.4489,-70.6693],["Lima","Perú",-12.0464,-77.0428],
+["Cusco","Perú",-13.5319,-71.9675],["Bogotá","Colombia",4.7110,-74.0721],["Cartagena de Indias","Colombia",10.3910,-75.4794],
+["Quito","Ecuador",-0.1807,-78.4678],["Montevideo","Uruguay",-34.9011,-56.1645],["La Habana","Cuba",23.1136,-82.3666],
+["Punta Cana","República Dominicana",18.5601,-68.3725],["San José","Costa Rica",9.9281,-84.0907]
+];
+
+const TYPES = {
+  vuelo:{label:"Vuelo",icon:"✈️"}, comida:{label:"Comida",icon:"🍽️"},
+  actividad:{label:"Actividad",icon:"🧭"}, transporte:{label:"Transporte",icon:"🚗"},
+  alojamiento:{label:"Alojamiento",icon:"🛏️"}, tour:{label:"Tour / varios días",icon:"🎟️"}
+};
+const FLIGHT_STATUS = {
+  "a-tiempo":{label:"A tiempo",bg:"var(--accent-soft)",fg:"var(--accent)"},
+  "embarcando":{label:"Embarcando",bg:"var(--accent-soft)",fg:"var(--accent)"},
+  "retrasado":{label:"Retrasado",bg:"var(--amber-soft)",fg:"var(--amber)"},
+  "puerta-cambiada":{label:"Puerta cambiada",bg:"var(--blue-soft)",fg:"var(--blue)"},
+  "cancelado":{label:"Cancelado",bg:"var(--red-soft)",fg:"var(--red)"}
+};
+const COVERS = ["🧳","✈️","🏖️","🏔️","🏙️","🚗","🗺️","🎒","⛩️","🏝️"];
+
+const FLIGHT_SCAN_PROMPT = `Esta imagen es una foto o captura de pantalla de una reserva o billete de avión (tarjeta de embarque, email de confirmación, app de la aerolínea...). Léela y responde ÚNICAMENTE con un JSON con este formato exacto, sin texto antes ni después:
+{"airline": string, "flightNumber": string, "fromCode": string, "toCode": string, "fromCity": string, "toCity": string, "date": string, "depart": string, "arrive": string, "gate": string, "locator": string, "layovers": [{"city": string, "airportCode": string, "arrive": string, "depart": string}]}
+Reglas: fromCode/toCode son códigos IATA de 3 letras en mayúsculas. date en formato YYYY-MM-DD. depart/arrive en formato HH:MM de 24 horas. locator es el número de reserva o localizador (PNR). layovers es la lista de escalas si las hay (vacía si es vuelo directo). Si un dato no aparece en la imagen, usa "" (string vacío) o [] para layovers. No inventes datos que no veas.`;
+
+const TOUR_SCAN_PROMPT = `Esta imagen es una foto o captura de pantalla de la reserva de un tour, excursión, crucero, ruta guiada o actividad de varios días. Léela y responde ÚNICAMENTE con un JSON con este formato exacto, sin texto antes ni después:
+{"title": string, "place": string, "startDate": string, "endDate": string, "notes": string}
+Reglas: title es el nombre del tour/actividad. place describe el punto de encuentro y/o origen y destino si aparecen. startDate y endDate en formato YYYY-MM-DD (si solo aparece la duración en días y una fecha de inicio, calcula endDate). notes debe recoger en 2-4 líneas cortas cualquier otro dato útil que aparezca (precio, qué incluye, contacto, guía, punto de encuentro exacto, código de reserva, etc.). Si un dato no aparece en la imagen, usa "" (string vacío). No inventes datos que no veas.`;
+
+function scanErrorCopy(code){
+  const map = {
+    not_granted:"Necesitas permitir que la app use Claude para leer imágenes.",
+    images_unavailable:"Esta vista no permite analizar imágenes.",
+    image_rejected:"No se pudo leer ese archivo (formato o tamaño no válido). Prueba con otra imagen.",
+    rate_limited:"Demasiadas solicitudes por ahora. Inténtalo de nuevo en un momento.",
+    invalid_json:"No se pudo interpretar la respuesta. Prueba con una imagen más nítida.",
+    empty_completion:"No se pudo leer nada en la imagen. Prueba con otra más clara.",
+    refused:"No se pudo procesar esta imagen.",
+    session_expired:"Tu sesión ha caducado. Vuelve a intentarlo.",
+    sampling_disabled:"Esta función no está disponible en tu cuenta."
+  };
+  return map[code] || "No se pudieron extraer los datos automáticamente. Puedes rellenarlos a mano.";
+}
+
+/* ---------------- state ---------------- */
+let mode = "loading"; // loading | live | demo
+let db = null, userCap = null, sampleCap = null, assetsCap = null;
+let myId = null, myName = "", myAvatar = "", myColor = "#2F6F5E";
+let trips = [];
+let profileCache = {};
+let myLoc = null;
+let exploreFilter = {near:false, q:""};
+
+const $ = (sel,root)=> (root||document).querySelector(sel);
+const $$ = (sel,root)=> Array.from((root||document).querySelectorAll(sel));
+const view = $("#view");
+
+function esc(s){
+  return String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function uid(){ return "id-" + Math.random().toString(36).slice(2) + Date.now().toString(36); }
+/* toISOString() always returns UTC, so it silently shifts the date back
+   a day for anyone east of UTC (Spain included) once local midnight
+   crosses back over the UTC day boundary. Every calendar-date string in
+   this app must come from local Y/M/D instead. */
+function toDateStr(d){
+  return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+}
+
+/* ---------------- demo data (used when db/user capabilities aren't available) ---------------- */
+function loadDemoData(){
+  myId = "demo-yo";
+  myName = "Tú";
+  const today = new Date(); const in30 = new Date(today.getTime()+30*86400000);
+  const d = x => toDateStr(x);
+  trips = [
+    {
+      id:"demo-1", title:"Escapada a Kioto", destination:"Kioto", country:"Japón", lat:35.0116, lng:135.7681,
+      startDate:d(in30), endDate:d(new Date(in30.getTime()+3*86400000)), cover:"⛩️", public:true,
+      ownerId:"demo-yo", createdAt:new Date().toISOString(),
+      flights:[{id:"f1", airline:"Iberia", flightNumber:"IB3170", fromCode:"MAD", toCode:"NRT", fromCity:"Madrid", toCity:"Tokio",
+        date:d(in30), depart:"13:20", arrive:"09:10", status:"a-tiempo", gate:"B24 · 18C", locator:"XJ4K9P", notes:"Escala en Frankfurt"}],
+      tours:[{id:"tr1", title:"Ruta guiada por templos de Kioto", place:"Punto de encuentro: estación de Kioto",
+        startDate:d(in30), endDate:d(new Date(in30.getTime()+2*86400000)), notes:"Guía en español, incluye traslados"}],
+      dayColors:{ [d(in30)]:"#F4C9E0" },
+      dayTitles:{ [d(in30)]:"Llegada y templos" },
+      itinerary:{ [d(in30)]:[
+        {id:"i1", time:"09:30", type:"vuelo", title:"Llegada a Kansai (KIX)", place:"Aeropuerto de Kansai", notes:""},
+        {id:"i2", time:"13:00", type:"alojamiento", title:"Check-in Ryokan Gion", place:"Gion, Kioto", notes:"Pedir habitación con tatami"},
+        {id:"i4", time:"16:00", type:"tour", title:"Ruta guiada por templos de Kioto", place:"Punto de encuentro: estación de Kioto", notes:"", tourId:"tr1"},
+        {id:"i3", time:"18:00", type:"comida", title:"Cena kaiseki", place:"Restaurante Kikunoi", notes:"Reserva hecha a las 18:00"}
+      ]}
+    },
+    {
+      id:"demo-2", title:"Ruta por la Toscana", destination:"Florencia", country:"Italia", lat:43.7696, lng:11.2558,
+      startDate:d(new Date(today.getTime()+10*86400000)), endDate:d(new Date(today.getTime()+15*86400000)), cover:"🍷", public:true,
+      ownerId:"demo-marco", createdAt:new Date().toISOString(), flights:[], tours:[], dayColors:{}, dayTitles:{}, itinerary:{}
+    },
+    {
+      id:"demo-3", title:"Costa Amalfitana en furgo", destination:"Nápoles", country:"Italia", lat:40.8518, lng:14.2681,
+      startDate:d(new Date(today.getTime()+45*86400000)), endDate:d(new Date(today.getTime()+52*86400000)), cover:"🚗", public:true,
+      ownerId:"demo-elena", createdAt:new Date().toISOString(), flights:[], tours:[], dayColors:{}, dayTitles:{}, itinerary:{}
+    }
+  ];
+  profileCache = {
+    "demo-marco":{id:"demo-marco", name:"Marco", avatarUrl:"", color:"#B96A21"},
+    "demo-elena":{id:"demo-elena", name:"Elena", avatarUrl:"", color:"#6E5498"}
+  };
+}
+
+/* ---------------- capability init ---------------- */
+async function init(){
+  try{
+    if(window.claude && typeof window.claude.use === "function"){
+      const [dbCap, uCap, smpCap, astCap] = await Promise.all([window.claude.use("db"), window.claude.use("user"), window.claude.use("sample").catch(()=>null), window.claude.use("assets").catch(()=>null)]);
+      if(dbCap && uCap){
+        db = dbCap; userCap = uCap; sampleCap = smpCap; assetsCap = astCap;
+        const me = await uCap.me();
+        myId = me.id; myName = me.name; myAvatar = me.avatarUrl; myColor = me.color;
+        mode = "live";
+        subscribeTrips();
+        renderWho();
+        route();
+        return;
+      }
+    }
+  }catch(e){ console.warn("TravelApp: capacidades no disponibles, usando modo demo.", e); }
+  mode = "demo";
+  loadDemoData();
+  renderWho();
+  route();
+}
+
+function subscribeTrips(){
+  db.collection("trips").onSnapshot(snap=>{
+    trips = snap.docs.map(dd => ({id:dd.id, ...dd.data()}));
+    route();
+  }, err=>{ console.error("db error", err); });
+}
+
+async function resolveProfiles(ids){
+  const need = [...new Set(ids)].filter(id => id && !profileCache[id]);
+  if(need.length && mode==="live" && userCap){
+    const res = await userCap.profiles(need);
+    Object.assign(profileCache, res);
+  }
+  return profileCache;
+}
+
+/* ---------------- write helpers ---------------- */
+async function createTrip(data){
+  const doc = {
+    title:data.title, destination:data.destination, country:data.country,
+    lat: data.lat ?? null, lng: data.lng ?? null,
+    startDate:data.startDate, endDate:data.endDate, cover:data.cover, coverImage:data.coverImage ?? null, public:data.public,
+    ownerId:myId, createdAt:new Date().toISOString(), flights:[], tours:[], dayColors:{}, dayTitles:{}, itinerary:{}
+  };
+  if(mode==="live"){
+    const ref = await db.collection("trips").add(doc);
+    return ref.id;
+  }else{
+    doc.id = uid(); trips.unshift(doc); route(); return doc.id;
+  }
+}
+async function updateTrip(id, partial){
+  if(mode==="live"){ await db.doc("trips/"+id).update(partial); }
+  else{ const t = trips.find(t=>t.id===id); Object.assign(t, partial); route(); }
+}
+async function deleteTrip(id){
+  if(mode==="live"){ await db.doc("trips/"+id).delete(); }
+  else{ trips = trips.filter(t=>t.id!==id); }
+  location.hash = "#/mios";
+}
+async function saveFlights(tripId, flights){
+  await updateTrip(tripId, {flights});
+}
+async function saveTours(tripId, tours){
+  await updateTrip(tripId, {tours});
+}
+async function saveDayColor(tripId, dateStr, color){
+  if(mode==="live"){ await db.doc("trips/"+tripId).update({dayColors:{[dateStr]:color}}); }
+  else{ const t = trips.find(t=>t.id===tripId); t.dayColors = t.dayColors||{}; t.dayColors[dateStr] = color; route(); }
+}
+async function saveDayTitle(tripId, dateStr, title){
+  if(mode==="live"){ await db.doc("trips/"+tripId).update({dayTitles:{[dateStr]:title}}); }
+  else{ const t = trips.find(t=>t.id===tripId); t.dayTitles = t.dayTitles||{}; t.dayTitles[dateStr] = title; route(); }
+}
+async function saveItineraryPatch(tripId, patch){
+  if(mode==="live"){ await db.doc("trips/"+tripId).update({itinerary:patch}); }
+  else{ const t = trips.find(t=>t.id===tripId); t.itinerary = t.itinerary||{}; Object.assign(t.itinerary, patch); route(); }
+}
+async function saveDayItems(tripId, dateStr, items){
+  await saveItineraryPatch(tripId, {[dateStr]:items});
+}
+
+/* ---------------- geo helpers ---------------- */
+function haversine(lat1,lng1,lat2,lng2){
+  const R=6371, toRad = x=>x*Math.PI/180;
+  const dLat=toRad(lat2-lat1), dLng=toRad(lng2-lng1);
+  const a=Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLng/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+function requestLocation(cb){
+  if(!navigator.geolocation) return cb(null);
+  navigator.geolocation.getCurrentPosition(
+    pos=>cb({lat:pos.coords.latitude, lng:pos.coords.longitude}),
+    ()=>cb(null), {timeout:8000}
+  );
+}
+
+/* ---------------- date helpers ---------------- */
+function dateRange(start,end){
+  const out=[]; let d=new Date(start+"T00:00:00"); const e=new Date(end+"T00:00:00");
+  let guard=0;
+  while(d<=e && guard<60){ out.push(toDateStr(d)); d.setDate(d.getDate()+1); guard++; }
+  return out;
+}
+/* The trip's own start/end dates are what the person set, but a tour or
+   flight can run a day or two outside them (an excursion booked the day
+   the "official" trip ends, say) — the calendar and day list must still
+   show that day as part of the trip, or it looks unrelated and empty. */
+function effectiveDayRange(t){
+  let minD = t.startDate, maxD = t.endDate;
+  for(const tr of (t.tours||[])){
+    if(tr.startDate && tr.startDate < minD) minD = tr.startDate;
+    if(tr.endDate && tr.endDate > maxD) maxD = tr.endDate;
+  }
+  for(const f of (t.flights||[])){
+    if(f.date && f.date < minD) minD = f.date;
+    if(f.date && f.date > maxD) maxD = f.date;
+  }
+  return dateRange(minD, maxD);
+}
+function fmtDay(dateStr){
+  const d = new Date(dateStr+"T00:00:00");
+  return d.toLocaleDateString("es-ES",{weekday:"short",day:"numeric",month:"short"}).replace(".","");
+}
+function fmtRange(s,e){
+  const a=new Date(s+"T00:00:00"), b=new Date(e+"T00:00:00");
+  const df = x=>x.toLocaleDateString("es-ES",{day:"numeric",month:"short"});
+  return df(a) + " – " + df(b) + ", " + b.getFullYear();
+}
+
+/* ---------------- routing ---------------- */
+window.addEventListener("hashchange", route);
+function currentRoute(){
+  const h = location.hash.slice(1) || "/mios";
+  const parts = h.split("/").filter(Boolean);
+  return parts;
+}
+function route(){
+  closeDayPopover();
+  const parts = currentRoute();
+  if(mode==="loading"){ view.innerHTML = `<div class="empty">Cargando tus viajes…</div>`; return; }
+  if(parts[0]==="viaje" && parts[1]) renderTripDetail(parts[1], parts[2]||"itinerario");
+  else if(parts[0]==="explorar") renderExplorar();
+  else renderMisViajes();
+  updateNavActive();
+}
+function updateNavActive(){
+  const parts = currentRoute();
+  $$("#nav button").forEach(b=>b.classList.remove("active"));
+  if(parts[0]==="explorar") $('#nav button[data-go="/explorar"]').classList.add("active");
+  else if(!parts[0] || parts[0]==="mios") $('#nav button[data-go="/mios"]').classList.add("active");
+}
+$("#nav").addEventListener("click", e=>{
+  const b = e.target.closest("button[data-go]"); if(!b) return;
+  location.hash = "#"+b.dataset.go;
+});
+
+function renderWho(){
+  const who = $("#who");
+  if(mode==="demo"){
+    who.innerHTML = `<span class="demo-pill">Demo local</span>`;
+  }else{
+    who.innerHTML = `<img class="avatar" src="${esc(myAvatar)}" alt=""><span class="name">${esc(myName||"Tú")}</span>`;
+  }
+}
+
+/* ---------------- Mis viajes ---------------- */
+function renderMisViajes(){
+  const mine = trips.filter(t=>t.ownerId===myId).sort((a,b)=> a.startDate<b.startDate?-1:1);
+  view.innerHTML = `
+    ${mode==="demo" ? `<div class="banner">🧳 <div><b>Estás viendo una demo local.</b> Abre esta app publicada en claude.ai para guardar tus viajes de verdad, compartirlos con quien viaje contigo y verlos aquí en cualquier momento.</div></div>` : ""}
+    <div class="section-head">
+      <div><div class="eyebrow">TravelApp</div><h1>Mis viajes</h1></div>
+      <button class="btn btn-primary" id="btn-new-trip">＋ Nuevo viaje</button>
+    </div>
+    <div class="grid" id="mine-grid"></div>
+  `;
+  const grid = $("#mine-grid");
+  grid.innerHTML = mine.length ? mine.map(tripCardHtml).join("") : `<div class="empty">Todavía no has creado ningún viaje.</div>`;
+  $$(".trip-card", grid).forEach(el=> el.addEventListener("click", ()=> location.hash = "#/viaje/"+el.dataset.id));
+  $("#btn-new-trip").addEventListener("click", openNewTripDialog);
+}
+
+function tripCardHtml(t){
+  const days = dateRange(t.startDate,t.endDate).length;
+  const nFlights = (t.flights||[]).length;
+  const hasImg = !!t.coverImage;
+  return `<button class="trip-card${hasImg?' has-image':''}" data-id="${esc(t.id)}" ${hasImg?`style="background-image:url('/_blob/${esc(t.coverImage)}')"`:""}>
+    <div class="trip-cover">${esc(t.cover||"🧳")}</div>
+    <div class="trip-caption">
+      <h3>${esc(t.title)}</h3>
+      <div class="trip-dest">${esc(t.destination)}${t.country?", "+esc(t.country):""}</div>
+    </div>
+    <div class="trip-meta">
+      <span class="chip mono">${fmtRange(t.startDate,t.endDate)}</span>
+      <span class="chip">${days} día${days===1?"":"s"}</span>
+      ${nFlights?`<span class="chip">✈️ ${nFlights}</span>`:""}
+    </div>
+  </button>`;
+}
+
+/* ---------------- Explorar ---------------- */
+async function renderExplorar(){
+  const others = trips.filter(t=>t.ownerId!==myId && t.public!==false);
+  const ids = others.map(t=>t.ownerId);
+  await resolveProfiles(ids);
+
+  view.innerHTML = `
+    <div class="section-head">
+      <div><div class="eyebrow">TravelApp</div><h1>Explorar</h1></div>
+    </div>
+    <p class="hint" style="margin:-8px 0 14px;">Viajes que otras personas han planeado y compartido con TravelApp.</p>
+    <div class="filterbar">
+      <input type="search" id="explore-q" placeholder="Buscar destino o país…" value="${esc(exploreFilter.q)}">
+      <button class="btn ${exploreFilter.near?"active":""}" id="btn-near">📍 Cerca de mí</button>
+    </div>
+    <div class="grid" id="explore-grid"></div>
+  `;
+  paintExplore(others);
+
+  $("#explore-q").addEventListener("input", e=>{ exploreFilter.q = e.target.value; paintExplore(others); });
+  $("#btn-near").addEventListener("click", ()=>{
+    if(exploreFilter.near){ exploreFilter.near=false; paintExplore(others); return; }
+    $("#btn-near").textContent = "Buscando tu ubicación…";
+    requestLocation(loc=>{
+      myLoc = loc; exploreFilter.near = true;
+      $("#btn-near").textContent = loc ? "📍 Cerca de mí" : "📍 Ubicación no disponible";
+      paintExplore(others);
+    });
+  });
+}
+function paintExplore(list){
+  let items = list.filter(t=>{
+    if(!exploreFilter.q) return true;
+    const q = exploreFilter.q.toLowerCase();
+    return (t.destination||"").toLowerCase().includes(q) || (t.country||"").toLowerCase().includes(q) || (t.title||"").toLowerCase().includes(q);
+  });
+  items = items.map(t=>{
+    let dist = null;
+    if(exploreFilter.near && myLoc && t.lat!=null && t.lng!=null) dist = haversine(myLoc.lat,myLoc.lng,t.lat,t.lng);
+    return {...t, _dist:dist};
+  });
+  if(exploreFilter.near && myLoc){
+    items.sort((a,b)=>{
+      if(a._dist==null && b._dist==null) return 0;
+      if(a._dist==null) return 1; if(b._dist==null) return -1;
+      return a._dist - b._dist;
+    });
+  } else {
+    items.sort((a,b)=> (b.createdAt||"").localeCompare(a.createdAt||""));
+  }
+  const grid = $("#explore-grid");
+  if(!items.length){ grid.outerHTML = `<div class="empty" id="explore-grid">Nadie ha compartido viajes por aquí todavía. ¡Sé la primera persona en publicar uno!</div>`; return; }
+  grid.innerHTML = items.map(t=>{
+    const days = dateRange(t.startDate,t.endDate).length;
+    const author = profileCache[t.ownerId];
+    const name = (author && author.name) || "Alguien";
+    const hasImg = !!t.coverImage;
+    return `<button class="trip-card${hasImg?' has-image':''}" data-id="${esc(t.id)}" ${hasImg?`style="background-image:url('/_blob/${esc(t.coverImage)}')"`:""}>
+      <div class="trip-cover">${esc(t.cover||"🧳")}</div>
+      <div class="trip-caption">
+        <h3>${esc(t.title)}</h3>
+        <div class="trip-dest">${esc(t.destination)}${t.country?", "+esc(t.country):""}</div>
+        <div class="author-row">de ${esc(name)}${t._dist!=null?` · <span class="distance-badge">~${Math.round(t._dist)} km</span>`:""}</div>
+      </div>
+      <div class="trip-meta">
+        <span class="chip mono">${fmtRange(t.startDate,t.endDate)}</span>
+        <span class="chip">${days} día${days===1?"":"s"}</span>
+      </div>
+    </button>`;
+  }).join("");
+  $$(".trip-card", grid).forEach(el=> el.addEventListener("click", ()=> location.hash = "#/viaje/"+el.dataset.id));
+}
+
+/* ---------------- Trip detail ---------------- */
+let activeDay = null;
+let itinerarioView = "calendario";
+async function renderTripDetail(id, tab){
+  const t = trips.find(x=>x.id===id);
+  if(!t){ view.innerHTML = `<div class="empty">Este viaje ya no existe o no tienes acceso. <br><button class="btn" style="margin-top:10px" onclick="location.hash='#/mios'">Volver</button></div>`; return; }
+  const canEdit = t.ownerId === myId;
+  const days = effectiveDayRange(t);
+  if(!activeDay || !days.includes(activeDay)) activeDay = days[0];
+  let authorLine = "";
+  if(!canEdit){
+    await resolveProfiles([t.ownerId]);
+    const author = profileCache[t.ownerId];
+    authorLine = `<div class="readonly-note">Viaje de ${esc((author&&author.name)||"otra persona")} · solo lectura</div>`;
+  }
+
+  view.innerHTML = `
+    <button class="back-link" id="btn-back">← Volver</button>
+    <div class="trip-header">
+      <div class="trip-cover">${esc(t.cover||"🧳")}</div>
+      <div>
+        <h1>${esc(t.title)}</h1>
+        <div class="trip-dest">${esc(t.destination)}${t.country?", "+esc(t.country):""}</div>
+        <div class="date-range">${fmtRange(t.startDate,t.endDate)} · ${days.length} día${days.length===1?"":"s"}</div>
+        ${authorLine}
+      </div>
+      <div class="actions">
+        <button class="btn btn-sm" id="btn-share">🔗 Compartir</button>
+        ${canEdit ? `<button class="btn btn-sm" id="btn-edit-trip">✎ Editar</button>` : ""}
+        ${canEdit ? `<button class="btn btn-sm btn-danger btn-ghost" id="btn-del-trip">Eliminar</button>` : ""}
+      </div>
+    </div>
+    <div class="tabs">
+      <button data-tab="itinerario" class="${tab==='itinerario'?'active':''}">Itinerario</button>
+      <button data-tab="vuelos" class="${tab==='vuelos'?'active':''}">Vuelos${(t.flights||[]).length?` (${t.flights.length})`:""}</button>
+      <button data-tab="tours" class="${tab==='tours'?'active':''}">Tours${(t.tours||[]).length?` (${t.tours.length})`:""}</button>
+    </div>
+    <div id="tab-body"></div>
+  `;
+  $("#btn-back").addEventListener("click", ()=> location.hash = "#/mios");
+  $("#btn-share").addEventListener("click", async ()=>{
+    try{ await navigator.clipboard.writeText(location.href); $("#btn-share").textContent = "✓ Enlace copiado"; setTimeout(()=>$("#btn-share")&&($("#btn-share").textContent="🔗 Compartir"),1800); }
+    catch(e){ alert("Copia este enlace: "+location.href); }
+  });
+  if(canEdit){
+    $("#btn-edit-trip").addEventListener("click", ()=> openEditTripDialog(t));
+    $("#btn-del-trip").addEventListener("click", ()=>{ if(confirm("¿Eliminar este viaje? No se puede deshacer.")) deleteTrip(t.id); });
+  }
+  $$(".tabs button").forEach(b=> b.addEventListener("click", ()=> location.hash = `#/viaje/${t.id}/${b.dataset.tab}`));
+
+  if(tab==="vuelos") renderVuelosTab(t, canEdit);
+  else if(tab==="tours") renderToursTab(t, canEdit);
+  else renderItinerarioTab(t, days, canEdit);
+}
+
+function renderItinerarioTab(t, days, canEdit){
+  const body = $("#tab-body");
+  body.innerHTML = `
+    <div class="view-toggle" id="view-toggle">
+      <button data-view="lista" class="${itinerarioView==='lista'?'active':''}">📋 Lista</button>
+      <button data-view="calendario" class="${itinerarioView==='calendario'?'active':''}">📅 Calendario</button>
+    </div>
+    <div id="itinerario-body"></div>
+  `;
+  $$("#view-toggle button").forEach(b=> b.addEventListener("click", ()=>{
+    itinerarioView = b.dataset.view;
+    renderItinerarioTab(t, days, canEdit);
+  }));
+  if(itinerarioView === "calendario") renderCalendarView(t, days, canEdit);
+  else renderListView(t, days, canEdit);
+}
+
+/* Builds the item rows for one day — shared by the list view, the calendar
+   popover and anywhere else that needs to show a day's plan. */
+function timelineItemsHtml(t, dateStr, canEdit){
+  const effTime = it => it.flightId && (t.flights||[]).find(f=>f.id===it.flightId) ? (t.flights||[]).find(f=>f.id===it.flightId).depart : it.time;
+  const items = ((t.itinerary||{})[dateStr]||[]).slice().sort((a,b)=> effTime(a).localeCompare(effTime(b)));
+  const html = items.length ? items.map(it=>{
+    const meta = TYPES[it.type]||TYPES.actividad;
+    const linkedFlight = it.flightId ? (t.flights||[]).find(f=>f.id===it.flightId) : null;
+    const linkedTour = it.tourId ? (t.tours||[]).find(x=>x.id===it.tourId) : null;
+    const shownTime = linkedFlight ? linkedFlight.depart : it.time;
+    const shownTitle = linkedTour ? linkedTour.title : it.title;
+    const shownPlace = linkedTour ? linkedTour.place : it.place;
+    const st = linkedFlight ? (FLIGHT_STATUS[linkedFlight.status]||FLIGHT_STATUS["a-tiempo"]) : null;
+    let tourChip = "";
+    if(linkedTour){
+      const tourDays = dateRange(linkedTour.startDate, linkedTour.endDate);
+      const dayIdx = tourDays.indexOf(dateStr);
+      if(dayIdx>-1) tourChip = `<span class="tour-chip">Día ${dayIdx+1} de ${tourDays.length}</span>`;
+    }
+    return `<div class="titem" data-id="${esc(it.id)}">
+      <div class="time mono">${esc(shownTime)}</div>
+      <div class="dot type-${esc(it.type)}">${meta.icon}</div>
+      <div class="body">
+        <div class="ttitle">${esc(shownTitle)} ${st?`<span class="status-pill" style="background:${st.bg};color:${st.fg}">${esc(st.label)}</span>`:""}${tourChip}</div>
+        ${shownPlace?`<div class="tplace">${esc(shownPlace)}</div>`:""}
+        ${it.notes?`<div class="tnotes">${esc(it.notes)}</div>`:""}
+      </div>
+      ${canEdit ? `<div class="row-actions"><button class="icon-btn" data-edit="${esc(it.id)}">✎</button></div>` : ""}
+    </div>`;
+  }).join("") : `<div class="empty">Nada planeado todavía para este día.</div>`;
+  return {html, items};
+}
+
+function renderListView(t, days, canEdit){
+  const body = $("#itinerario-body");
+  body.innerHTML = `
+    <div class="day-strip" id="day-strip"></div>
+    <div class="day-heading-row" id="day-heading-row"></div>
+    <div class="timeline" id="timeline"></div>
+    ${canEdit ? `<button class="btn add-row" id="btn-add-item">＋ Añadir al día</button>` : ""}
+  `;
+  const strip = $("#day-strip");
+  strip.innerHTML = days.map((d,i)=>{
+    const color = (t.dayColors||{})[d];
+    return `<div class="day-tab-wrap">
+      <button class="day-tab ${d===activeDay?'active':''} ${color?'has-color':''}" data-date="${d}" ${color?`style="--day-color:${color}"`:""}><span class="d-num">${i+1}</span><span>${fmtDay(d)}</span></button>
+      ${canEdit ? `<button class="day-color-btn" data-date="${d}" style="--day-color:${color||'transparent'}" title="Color y título de este día"></button>` : (color ? `<span class="day-color-bar" style="--day-color:${color}"></span>` : "")}
+    </div>`;
+  }).join("");
+  $$(".day-tab", strip).forEach(b=> b.addEventListener("click", ()=>{ activeDay = b.dataset.date; renderListView(t, days, canEdit); }));
+  $$(".day-color-btn", strip).forEach(b=> b.addEventListener("click", ()=> openDayPopover(t, b.dataset.date, b, days)));
+
+  const activeTitle = (t.dayTitles||{})[activeDay];
+  $("#day-heading-row").innerHTML = activeTitle ? `<h3 class="day-heading">${esc(activeTitle)}</h3>` : "";
+
+  const {html, items} = timelineItemsHtml(t, activeDay, canEdit);
+  const tl = $("#timeline");
+  tl.innerHTML = html;
+  if(canEdit){
+    $$("[data-edit]", tl).forEach(b=> b.addEventListener("click", ()=> openItemDialog(t, activeDay, items.find(i=>i.id===b.dataset.edit))));
+    $("#btn-add-item").addEventListener("click", ()=> openItemDialog(t, activeDay, null));
+  }
+}
+
+function renderCalendarView(t, days, canEdit){
+  const body = $("#itinerario-body");
+  const tripDaySet = new Set(days);
+  const monthKeys = [...new Set(days.map(d=>d.slice(0,7)))];
+  body.innerHTML = `
+    ${canEdit ? `<p class="hint cal-hint">Toca un día para ponerle título, color y ver sus planes.</p>` : ""}
+    ${monthKeys.map(mk=> monthGridHtml(t, mk, tripDaySet, days)).join("")}
+  `;
+  $$(".cal-cell.in-trip", body).forEach(cell=>{
+    cell.addEventListener("click", ()=> openDayPopover(t, cell.dataset.date, cell, days));
+  });
+}
+/* The label to show inside a calendar cell for whatever's first (by time)
+   on that day — resolved live through a linked flight/tour, same as the
+   timeline, so a status or title change shows up here too. */
+const CAL_EVENTS_SHOWN = 3;
+function dayEventLabels(t, dateStr){
+  const items = (t.itinerary||{})[dateStr] || [];
+  if(!items.length) return [];
+  const effTime = it => it.flightId && (t.flights||[]).find(f=>f.id===it.flightId) ? (t.flights||[]).find(f=>f.id===it.flightId).depart : it.time;
+  const sorted = items.slice().sort((a,b)=> effTime(a).localeCompare(effTime(b)));
+  return sorted.map(it=>{
+    const linkedTour = it.tourId ? (t.tours||[]).find(x=>x.id===it.tourId) : null;
+    const meta = TYPES[it.type] || TYPES.actividad;
+    return { icon: meta.icon, title: linkedTour ? linkedTour.title : it.title };
+  });
+}
+function monthGridHtml(t, monthKey, tripDaySet, days){
+  const [y,m] = monthKey.split("-").map(Number);
+  const first = new Date(y, m-1, 1);
+  const daysInMonth = new Date(y, m, 0).getDate();
+  const firstWeekday = (first.getDay()+6)%7; // 0 = Monday
+  const monthLabel = first.toLocaleDateString("es-ES", {month:"long", year:"numeric"});
+  let cells = "";
+  for(let i=0;i<firstWeekday;i++) cells += `<div class="cal-cell cal-empty"></div>`;
+  for(let day=1; day<=daysInMonth; day++){
+    const dateStr = `${y}-${String(m).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
+    const inTrip = tripDaySet.has(dateStr);
+    const dayIdx = days.indexOf(dateStr);
+    const color = (t.dayColors||{})[dateStr];
+    const title = (t.dayTitles||{})[dateStr];
+    const label = title || (dayIdx>-1 ? `Día ${dayIdx+1}` : "");
+    const events = inTrip ? dayEventLabels(t, dateStr) : [];
+    const shown = events.slice(0, CAL_EVENTS_SHOWN);
+    const hiddenCount = events.length - shown.length;
+    cells += `<div class="cal-cell ${inTrip?'in-trip':'out-trip'}" ${inTrip?`data-date="${dateStr}" title="${esc(title||'')}"`:""} ${color&&inTrip?`style="--day-color:${color}"`:""}>
+      <span class="cal-daynum">${day}</span>
+      ${inTrip && label ? `<span class="cal-dlabel${title?' has-title':''}">${esc(label)}</span>` : ""}
+      ${shown.map(evt=>`<span class="cal-event">${evt.icon} ${esc(evt.title)}</span>`).join("")}
+      ${hiddenCount>0 ? `<span class="cal-event cal-event-more">+${hiddenCount} más</span>` : ""}
+    </div>`;
+  }
+  return `<div class="cal-month">
+    <h3 class="cal-month-title">${esc(monthLabel)}</h3>
+    <div class="cal-weekdays">${["L","M","X","J","V","S","D"].map(w=>`<span>${w}</span>`).join("")}</div>
+    <div class="cal-grid">${cells}</div>
+  </div>`;
+}
+
+/* ---- day popover: shown when a calendar day (or a list-view color dot) is clicked ---- */
+function closeDayPopover(){
+  const pop = $("#day-popover");
+  if(!pop) return;
+  pop.hidden = true;
+  pop.innerHTML = "";
+  document.removeEventListener("click", onOutsidePopoverClick, true);
+  document.removeEventListener("keydown", onPopoverEsc);
+}
+function onOutsidePopoverClick(e){
+  const pop = $("#day-popover");
+  if(!pop || pop.hidden) return;
+  if(!pop.contains(e.target)) closeDayPopover();
+}
+function onPopoverEsc(e){ if(e.key === "Escape") closeDayPopover(); }
+function openDayPopover(t, dateStr, anchorEl, days){
+  const canEdit = t.ownerId === myId;
+  const dayIdx = days.indexOf(dateStr);
+  const color = (t.dayColors||{})[dateStr] || "";
+  const title = (t.dayTitles||{})[dateStr] || "";
+  const {html, items} = timelineItemsHtml(t, dateStr, canEdit);
+  const usedColors = [...new Set(Object.values(t.dayColors||{}).filter(c=> c && c!==color))];
+  const pop = $("#day-popover");
+  pop.innerHTML = `
+    <div class="popover-head">
+      <div><div class="eyebrow">${dayIdx>-1?`Día ${dayIdx+1}`:""}</div><h3>${esc(fmtDay(dateStr))}</h3></div>
+      ${canEdit ? `<input type="color" id="pop-color" value="${color||'#ffffff'}" title="Color de este día">` : ""}
+      <button type="button" class="icon-btn" id="pop-close">✕</button>
+    </div>
+    ${canEdit && usedColors.length ? `<div class="pop-swatches">${usedColors.map(c=>`<button type="button" class="pop-swatch" data-color="${esc(c)}" style="--sw-color:${esc(c)}" title="Usar este color"></button>`).join("")}</div>` : ""}
+    ${canEdit
+      ? `<input type="text" id="pop-title" class="pop-title-input" placeholder="Título del día (opcional)" value="${esc(title)}" maxlength="60">`
+      : (title ? `<div class="pop-title-readonly">${esc(title)}</div>` : "")}
+    <div class="timeline">${html}</div>
+    ${canEdit ? `<button class="btn btn-sm add-row" id="pop-add">＋ Añadir</button>` : ""}
+  `;
+  pop.hidden = false;
+  $("#pop-close", pop).addEventListener("click", closeDayPopover);
+  const colorInput = $("#pop-color", pop);
+  if(colorInput) colorInput.addEventListener("input", ()=> saveDayColor(t.id, dateStr, colorInput.value));
+  $$(".pop-swatch", pop).forEach(b=> b.addEventListener("click", ()=>{
+    const c = b.dataset.color;
+    if(colorInput) colorInput.value = c;
+    saveDayColor(t.id, dateStr, c);
+  }));
+  const titleInput = $("#pop-title", pop);
+  if(titleInput) titleInput.addEventListener("change", ()=> saveDayTitle(t.id, dateStr, titleInput.value.trim()));
+  const addBtn = $("#pop-add", pop);
+  if(addBtn) addBtn.addEventListener("click", ()=>{ closeDayPopover(); openItemDialog(t, dateStr, null); });
+  $$("[data-edit]", pop).forEach(b=> b.addEventListener("click", ()=>{
+    const item = items.find(i=>i.id===b.dataset.edit);
+    closeDayPopover();
+    openItemDialog(t, dateStr, item);
+  }));
+  positionPopover(pop, anchorEl);
+  document.addEventListener("click", onOutsidePopoverClick, true);
+  document.addEventListener("keydown", onPopoverEsc);
+}
+function positionPopover(pop, anchorEl){
+  const r = anchorEl.getBoundingClientRect();
+  const margin = 8;
+  pop.style.left = Math.max(margin, r.left) + "px";
+  pop.style.top = (r.bottom + margin) + "px";
+  requestAnimationFrame(()=>{
+    const pr = pop.getBoundingClientRect();
+    let left = r.left, top = r.bottom + margin;
+    if(left + pr.width > window.innerWidth - margin) left = window.innerWidth - margin - pr.width;
+    if(left < margin) left = margin;
+    if(top + pr.height > window.innerHeight - margin) top = r.top - pr.height - margin;
+    if(top < margin) top = margin;
+    pop.style.left = left + "px";
+    pop.style.top = top + "px";
+  });
+}
+
+function renderVuelosTab(t, canEdit){
+  const body = $("#tab-body");
+  const flights = (t.flights||[]).slice().sort((a,b)=> (a.date+a.depart).localeCompare(b.date+b.depart));
+  body.innerHTML = `
+    <div class="flight-list" id="flight-list">
+      ${flights.length ? flights.map(f=>flightCardHtml(f,t,canEdit)).join("") : `<div class="empty">Todavía no hay vuelos guardados en este viaje.</div>`}
+    </div>
+    ${canEdit ? `<button class="btn add-row" id="btn-add-flight">＋ Añadir vuelo</button>` : ""}
+  `;
+  if(canEdit){
+    $("#btn-add-flight").addEventListener("click", ()=> openFlightDialog(t, null));
+    $$("[data-edit-flight]", body).forEach(b=> b.addEventListener("click", ()=> openFlightDialog(t, flights.find(f=>f.id===b.dataset.editFlight))));
+    $$("[data-add-itin]", body).forEach(b=> b.addEventListener("click", ()=> addFlightToItinerary(t, flights.find(f=>f.id===b.dataset.addItin))));
+  }
+}
+function isFlightLinked(t, flightId){
+  return Object.values(t.itinerary||{}).some(dayItems=> dayItems.some(it=> it.flightId===flightId));
+}
+async function addFlightToItinerary(t, flight){
+  if(isFlightLinked(t, flight.id)) return;
+  const items = ((t.itinerary||{})[flight.date]||[]).slice();
+  items.push({id:uid(), time:flight.depart, type:"vuelo", title:`Vuelo ${flight.airline} ${flight.flightNumber}`, place:`${flight.fromCode} → ${flight.toCode}`, notes:"", flightId:flight.id});
+  await saveDayItems(t.id, flight.date, items);
+}
+function flightCardHtml(f, t, canEdit){
+  const st = FLIGHT_STATUS[f.status] || FLIGHT_STATUS["a-tiempo"];
+  const linked = t ? isFlightLinked(t, f.id) : false;
+  return `<div class="flight-card">
+    <div class="flight-main">
+      <div class="flight-top"><span class="flight-airline">${esc(f.airline)}</span><span class="flight-num mono">${esc(f.flightNumber)}</span></div>
+      <div class="flight-route">
+        <span class="code">${esc(f.fromCode)}</span><span class="arrow">✈</span><span class="code">${esc(f.toCode)}</span>
+      </div>
+      <div class="flight-times"><span>Salida ${esc(f.depart)}</span><span>Llegada ${esc(f.arrive)}${f.arriveNextDay?' <span class="mono">+1</span>':''}</span><span>${esc(f.date)}</span></div>
+      ${(f.fromCity||f.toCity)?`<div class="flight-extra">${esc(f.fromCity||"")} → ${esc(f.toCity||"")}</div>`:""}
+      ${f.locator?`<div class="flight-extra">Nº de reserva: <span class="mono">${esc(f.locator)}</span></div>`:""}
+      ${f.notes?`<div class="flight-extra">${esc(f.notes)}</div>`:""}
+      ${canEdit ? (linked
+        ? `<div class="flight-extra">✓ En el itinerario</div>`
+        : `<button class="btn btn-sm add-row" data-add-itin="${esc(f.id)}">📅 Añadir al itinerario</button>`) : ""}
+    </div>
+    <div class="flight-stub">
+      <span class="status-pill" style="background:${st.bg};color:${st.fg}">${esc(st.label)}</span>
+      ${f.gate?`<span class="hint mono">${esc(f.gate)}</span>`:""}
+      <button class="icon-btn" data-edit-flight="${esc(f.id)}">✎ Editar</button>
+    </div>
+  </div>`;
+}
+
+function renderToursTab(t, canEdit){
+  const body = $("#tab-body");
+  const tours = (t.tours||[]).slice().sort((a,b)=> a.startDate.localeCompare(b.startDate));
+  body.innerHTML = `
+    <p class="hint" style="margin:-4px 0 14px;">Tours, cruceros, rutas guiadas o cualquier plan que dure más de un día. Enlázalos desde "Añadir al día" en el itinerario y aparecerán en todos los días que duren.</p>
+    <div class="tour-list" id="tour-list">
+      ${tours.length ? tours.map(tourCardHtml).join("") : `<div class="empty">Todavía no hay tours ni actividades de varios días guardados.</div>`}
+    </div>
+    ${canEdit ? `<button class="btn add-row" id="btn-add-tour">＋ Añadir tour</button>` : ""}
+  `;
+  if(canEdit){
+    $("#btn-add-tour").addEventListener("click", ()=> openTourDialog(t, null));
+    $$("[data-edit-tour]", body).forEach(b=> b.addEventListener("click", ()=> openTourDialog(t, tours.find(x=>x.id===b.dataset.editTour))));
+  }
+}
+function tourCardHtml(tr){
+  const days = dateRange(tr.startDate, tr.endDate);
+  return `<div class="tour-card">
+    <div class="tour-main">
+      <h3>🎟️ ${esc(tr.title)}</h3>
+      ${tr.place?`<div class="trip-dest">${esc(tr.place)}</div>`:""}
+      <div class="trip-meta">
+        <span class="chip mono">${fmtRange(tr.startDate,tr.endDate)}</span>
+        <span class="chip">${days.length} día${days.length===1?"":"s"}</span>
+      </div>
+      ${tr.notes?`<div class="tnotes">${esc(tr.notes)}</div>`:""}
+    </div>
+    <button class="icon-btn" data-edit-tour="${esc(tr.id)}">✎ Editar</button>
+  </div>`;
+}
+
+/* ---------------- dialogs ---------------- */
+function openNewTripDialog(){
+  const dlg = $("#dlg-trip"); const form = $("#form-trip");
+  $("#dlg-trip-title").textContent = "Nuevo viaje";
+  form.reset(); form.dataset.mode = "create"; form.dataset.id = "";
+  buildCoverPicker(COVERS[0]);
+  $("#f-public").checked = true;
+  $("#f-shift-hint").hidden = true;
+  resetImageField(null);
+  dlg.showModal();
+}
+function openEditTripDialog(t){
+  const dlg = $("#dlg-trip"); const form = $("#form-trip");
+  $("#dlg-trip-title").textContent = "Editar viaje";
+  form.dataset.mode = "edit"; form.dataset.id = t.id;
+  $("#f-title").value = t.title; $("#f-destination").value = t.destination; $("#f-country").value = t.country||"";
+  $("#f-start").value = t.startDate; $("#f-end").value = t.endDate;
+  $("#f-public").checked = t.public !== false;
+  buildCoverPicker(t.cover);
+  $("#f-shift-hint").hidden = false;
+  resetImageField(t.coverImage||null);
+  dlg.showModal();
+}
+function resetImageField(existingId){
+  const form = $("#form-trip");
+  form.dataset.coverImage = existingId || "";
+  $("#f-image-field").hidden = !assetsCap;
+  $("#f-image-input").value = "";
+  $("#f-image-status").textContent = "";
+  const preview = $("#f-image-preview");
+  if(existingId){ preview.src = "/_blob/"+existingId; preview.hidden = false; }
+  else{ preview.hidden = true; preview.src = ""; }
+  $("#f-image-remove").hidden = !existingId;
+}
+function buildCoverPicker(selected){
+  const wrap = $("#cover-pick");
+  wrap.innerHTML = COVERS.map(c=>`<button type="button" data-cover="${c}" class="${c===selected?'sel':''}">${c}</button>`).join("");
+  $$("[data-cover]", wrap).forEach(b=> b.addEventListener("click", ()=>{
+    $$("[data-cover]", wrap).forEach(x=>x.classList.remove("sel")); b.classList.add("sel");
+  }));
+}
+$("#f-image-input").addEventListener("change", async ()=>{
+  const file = $("#f-image-input").files[0];
+  if(!file) return;
+  if(!assetsCap){ $("#f-image-status").textContent = "Esta función no está disponible en esta vista."; return; }
+  $("#f-image-status").textContent = "Subiendo imagen…";
+  try{
+    const res = await assetsCap.upload(file);
+    $("#form-trip").dataset.coverImage = res.id;
+    const preview = $("#f-image-preview");
+    preview.src = res.url; preview.hidden = false;
+    $("#f-image-remove").hidden = false;
+    $("#f-image-status").textContent = "✓ Imagen subida.";
+  }catch(e){
+    const map = {
+      too_large:"La imagen pesa demasiado (máx. 20 MB).",
+      unsupported_type:"Formato no admitido — usa JPG, PNG o WebP.",
+      not_granted:"Necesitas permiso para subir imágenes en esta vista.",
+      quota_or_state:"Se ha alcanzado el límite de almacenamiento del viaje."
+    };
+    $("#f-image-status").textContent = map[e && e.code] || "No se pudo subir la imagen. Inténtalo de nuevo.";
+    $("#f-image-input").value = "";
+  }
+});
+$("#f-image-remove").addEventListener("click", ()=>{
+  $("#form-trip").dataset.coverImage = "";
+  $("#f-image-input").value = "";
+  $("#f-image-status").textContent = "";
+  const preview = $("#f-image-preview");
+  preview.hidden = true; preview.src = "";
+  $("#f-image-remove").hidden = true;
+});
+if(!document.getElementById("datalist-filled")){
+  const dl = $("#destinations-list");
+  dl.innerHTML = DESTINATIONS.map(d=>`<option value="${esc(d[0])}">`).join("");
+  dl.id = "datalist-filled";
+}
+$("#f-destination").addEventListener("change", e=>{
+  const hit = DESTINATIONS.find(d=> d[0].toLowerCase() === e.target.value.trim().toLowerCase());
+  if(hit) $("#f-country").value = hit[1];
+});
+$("#form-trip").addEventListener("submit", async e=>{
+  e.preventDefault();
+  const form = e.target;
+  const name = $("#f-destination").value.trim();
+  const hit = DESTINATIONS.find(d=> d[0].toLowerCase() === name.toLowerCase());
+  const data = {
+    title: $("#f-title").value.trim(), destination:name, country: $("#f-country").value.trim(),
+    startDate: $("#f-start").value, endDate: $("#f-end").value,
+    cover: ($("#cover-pick .sel")||{}).dataset ? $("#cover-pick .sel").dataset.cover : COVERS[0],
+    public: $("#f-public").checked, lat: hit?hit[2]:null, lng: hit?hit[3]:null,
+    coverImage: form.dataset.coverImage || null
+  };
+  if(data.endDate < data.startDate) data.endDate = data.startDate;
+  $("#dlg-trip").close();
+  if(form.dataset.mode === "edit"){ await saveTripEdit(form.dataset.id, data); location.hash = "#/viaje/"+form.dataset.id; }
+  else{ const id = await createTrip(data); location.hash = "#/viaje/"+id; }
+});
+function daysBetween(fromStr, toStr){
+  const d1 = new Date(fromStr+"T00:00:00"), d2 = new Date(toStr+"T00:00:00");
+  return Math.round((d2-d1)/86400000);
+}
+function shiftDateStr(dateStr, deltaDays){
+  const d = new Date(dateStr+"T00:00:00");
+  d.setDate(d.getDate()+deltaDays);
+  return toDateStr(d);
+}
+async function saveTripEdit(id, data){
+  const old = trips.find(x=>x.id===id);
+  if(!old) return;
+  let itinerary = old.itinerary || {};
+  const delta = daysBetween(old.startDate, data.startDate);
+  if(delta !== 0 && Object.keys(itinerary).length){
+    const shifted = {};
+    for(const dateKey in itinerary) shifted[shiftDateStr(dateKey, delta)] = itinerary[dateKey];
+    itinerary = shifted;
+  }
+  let dayColors = old.dayColors || {};
+  if(delta !== 0 && Object.keys(dayColors).length){
+    const shiftedColors = {};
+    for(const dateKey in dayColors) shiftedColors[shiftDateStr(dateKey, delta)] = dayColors[dateKey];
+    dayColors = shiftedColors;
+  }
+  let dayTitles = old.dayTitles || {};
+  if(delta !== 0 && Object.keys(dayTitles).length){
+    const shiftedTitles = {};
+    for(const dateKey in dayTitles) shiftedTitles[shiftDateStr(dateKey, delta)] = dayTitles[dateKey];
+    dayTitles = shiftedTitles;
+  }
+  const full = {...old, ...data, itinerary, dayColors, dayTitles};
+  delete full.id;
+  if(mode==="live"){ await db.doc("trips/"+id).set(full); }
+  else{ Object.assign(old, full); route(); }
+}
+
+function openItemDialog(trip, dateStr, item){
+  const dlg = $("#dlg-item"); const form = $("#form-item");
+  $("#dlg-item-title").textContent = item ? "Editar plan" : "Añadir al itinerario";
+  form.dataset.tripId = trip.id; form.dataset.date = dateStr; form.dataset.itemId = item ? item.id : "";
+  $("#i-time").value = item ? item.time : "";
+  $("#i-type").value = item ? item.type : "actividad";
+  $("#i-title").value = item ? item.title : "";
+  $("#i-place").value = item ? item.place||"" : "";
+  $("#i-notes").value = item ? item.notes||"" : "";
+  populateFlightSelect(trip, item ? item.flightId||"" : "");
+  populateTourSelect(trip, item ? item.tourId||"" : "");
+  syncItemTypeFields();
+  $("#btn-del-item").hidden = !item;
+  dlg.showModal();
+}
+function syncItemTypeFields(){
+  const val = $("#i-type").value;
+  $("#i-flight-field").hidden = val !== "vuelo";
+  $("#i-tour-field").hidden = val !== "tour";
+  const isStay = val === "alojamiento";
+  $("#i-time-field").hidden = isStay;
+  $("#i-title-field").hidden = isStay;
+  $("#i-time").required = !isStay;
+  $("#i-title").required = !isStay;
+}
+function populateFlightSelect(trip, selectedId){
+  const sel = $("#i-flight");
+  const flights = (trip.flights||[]).slice().sort((a,b)=> (a.date+a.depart).localeCompare(b.date+b.depart));
+  sel.innerHTML = `<option value="">— Elegir un vuelo guardado —</option>` +
+    flights.map(f=>`<option value="${esc(f.id)}">${esc(f.flightNumber)} · ${esc(f.fromCode)}→${esc(f.toCode)} · ${esc(f.depart)}</option>`).join("");
+  sel.value = selectedId || "";
+  $("#i-flight-hint").textContent = flights.length ? "" : "Todavía no has guardado ningún vuelo en la pestaña Vuelos.";
+}
+function populateTourSelect(trip, selectedId){
+  const sel = $("#i-tour");
+  const tours = (trip.tours||[]).slice().sort((a,b)=> a.startDate.localeCompare(b.startDate));
+  sel.innerHTML = `<option value="">— Elegir un tour guardado —</option>` +
+    tours.map(tr=>`<option value="${esc(tr.id)}">${esc(tr.title)} · ${fmtRange(tr.startDate,tr.endDate)}</option>`).join("");
+  sel.value = selectedId || "";
+  $("#i-tour-hint").textContent = tours.length
+    ? "Se añadirá automáticamente a todos los días que dure el tour."
+    : "Todavía no has guardado ningún tour en la pestaña Tours.";
+}
+$("#i-type").addEventListener("change", syncItemTypeFields);
+$("#i-flight").addEventListener("change", ()=>{
+  const form = $("#form-item");
+  const t = trips.find(x=>x.id===form.dataset.tripId);
+  const f = t && (t.flights||[]).find(fl=>fl.id===$("#i-flight").value);
+  if(!f) return;
+  $("#i-time").value = f.depart;
+  if(!$("#i-title").value.trim()) $("#i-title").value = `Vuelo ${f.flightNumber} · ${f.fromCode} → ${f.toCode}`;
+  if(!$("#i-place").value.trim()) $("#i-place").value = `${f.fromCity||f.fromCode} → ${f.toCity||f.toCode}`;
+});
+$("#i-tour").addEventListener("change", ()=>{
+  const form = $("#form-item");
+  const t = trips.find(x=>x.id===form.dataset.tripId);
+  const tr = t && (t.tours||[]).find(x=>x.id===$("#i-tour").value);
+  if(!tr) return;
+  if(!$("#i-time").value) $("#i-time").value = "09:00";
+  $("#i-title").value = tr.title;
+  $("#i-place").value = tr.place||"";
+});
+$("#btn-del-item").addEventListener("click", async ()=>{
+  const form = $("#form-item");
+  const t = trips.find(x=>x.id===form.dataset.tripId);
+  const items = ((t.itinerary||{})[form.dataset.date]||[]).filter(i=>i.id!==form.dataset.itemId);
+  $("#dlg-item").close();
+  await saveDayItems(t.id, form.dataset.date, items);
+  route();
+});
+async function linkTourAcrossDays(trip, tour, template){
+  const tourDays = dateRange(tour.startDate, tour.endDate);
+  const patch = {};
+  for(const d of tourDays){
+    const existing = ((trip.itinerary||{})[d]||[]).filter(i=>i.tourId!==tour.id);
+    existing.push({id:uid(), time:template.time, type:"tour", title:template.title, place:template.place, notes:template.notes, tourId:tour.id});
+    patch[d] = existing;
+  }
+  await saveItineraryPatch(trip.id, patch);
+}
+$("#form-item").addEventListener("submit", async e=>{
+  e.preventDefault();
+  const form = e.target;
+  const t = trips.find(x=>x.id===form.dataset.tripId);
+  const isStay = $("#i-type").value === "alojamiento";
+  const data = {
+    time: isStay ? "15:00" : $("#i-time").value,
+    type:$("#i-type").value,
+    title: isStay ? "Alojamiento" : $("#i-title").value.trim(),
+    place:$("#i-place").value.trim(), notes:$("#i-notes").value.trim(),
+    flightId: $("#i-type").value==="vuelo" ? ($("#i-flight").value||null) : null,
+    tourId: $("#i-type").value==="tour" ? ($("#i-tour").value||null) : null
+  };
+  if(!form.dataset.itemId && data.type==="tour" && data.tourId){
+    const tour = (t.tours||[]).find(tr=>tr.id===data.tourId);
+    $("#dlg-item").close();
+    if(tour) await linkTourAcrossDays(t, tour, data);
+    route();
+    return;
+  }
+  const items = ((t.itinerary||{})[form.dataset.date]||[]).slice();
+  if(form.dataset.itemId){
+    const idx = items.findIndex(i=>i.id===form.dataset.itemId);
+    if(idx>-1) items[idx] = {...items[idx], ...data};
+  } else {
+    items.push({id:uid(), ...data});
+  }
+  $("#dlg-item").close();
+  await saveDayItems(t.id, form.dataset.date, items);
+  route();
+});
+
+/* Look up this same flight number in any other flight already saved in the app
+   (yours or a travel companion's) and reuse its route/times. There's no live
+   airline-status feed available here, so this is the closest honest version
+   of "autofill by flight number": it only ever reuses data a person actually typed. */
+function findKnownFlight(flightNumber, excludeFlightId){
+  const num = flightNumber.trim().toUpperCase();
+  if(!num) return null;
+  let best = null;
+  for(const t of trips){
+    for(const f of (t.flights||[])){
+      if(f.id===excludeFlightId) continue;
+      if((f.flightNumber||"").toUpperCase() !== num) continue;
+      if(!best || (f.date||"") > (best.date||"")) best = f;
+    }
+  }
+  return best;
+}
+$("#fl-num").addEventListener("input", ()=>{
+  const form = $("#form-flight");
+  const match = findKnownFlight($("#fl-num").value, form.dataset.flightId);
+  if(!match) return;
+  if(!$("#fl-airline").value.trim()) $("#fl-airline").value = match.airline||"";
+  if(!$("#fl-from").value.trim()) $("#fl-from").value = match.fromCode||"";
+  if(!$("#fl-to").value.trim()) $("#fl-to").value = match.toCode||"";
+  if(!$("#fl-fromcity").value.trim()) $("#fl-fromcity").value = match.fromCity||"";
+  if(!$("#fl-tocity").value.trim()) $("#fl-tocity").value = match.toCity||"";
+  if(!$("#fl-dep").value) $("#fl-dep").value = match.depart||"";
+  if(!$("#fl-arr").value) $("#fl-arr").value = match.arrive||"";
+});
+
+function openFlightDialog(trip, flight){
+  const dlg = $("#dlg-flight"); const form = $("#form-flight");
+  $("#dlg-flight-title").textContent = flight ? "Editar vuelo" : "Añadir vuelo";
+  form.dataset.tripId = trip.id; form.dataset.flightId = flight ? flight.id : "";
+  $("#fl-airline").value = flight ? flight.airline : "";
+  $("#fl-num").value = flight ? flight.flightNumber : "";
+  $("#fl-from").value = flight ? flight.fromCode : "";
+  $("#fl-to").value = flight ? flight.toCode : "";
+  $("#fl-fromcity").value = flight ? flight.fromCity||"" : "";
+  $("#fl-tocity").value = flight ? flight.toCity||"" : "";
+  $("#fl-date").value = flight ? flight.date : trip.startDate;
+  $("#fl-dep").value = flight ? flight.depart : "";
+  $("#fl-arr").value = flight ? flight.arrive : "";
+  $("#fl-nextday").checked = flight ? !!flight.arriveNextDay : false;
+  $("#fl-status").value = flight ? flight.status : "a-tiempo";
+  $("#fl-gate").value = flight ? flight.gate||"" : "";
+  $("#fl-locator").value = flight ? flight.locator||"" : "";
+  $("#fl-notes").value = flight ? flight.notes||"" : "";
+  $("#btn-del-flight").hidden = !flight;
+  $("#fl-scan-field").hidden = !sampleCap;
+  $("#fl-scan-input").value = "";
+  $("#fl-scan-input").disabled = false;
+  resetScanStatus("fl");
+  checkScanImageSupport("fl");
+  dlg.showModal();
+}
+function resetScanStatus(prefix){
+  const el = $("#"+prefix+"-scan-status");
+  if(!el) return;
+  if(el.dataset.defaultText) el.textContent = el.dataset.defaultText;
+  else el.dataset.defaultText = el.textContent;
+  el.classList.remove("is-busy","is-ok","is-err");
+}
+async function checkScanImageSupport(prefix){
+  if(!sampleCap) return;
+  try{
+    const caps = await sampleCap.limits();
+    if(!caps || !caps.images){
+      $("#"+prefix+"-scan-input").disabled = true;
+      setScanStatus(prefix, "Esta vista no permite leer imágenes automáticamente (es una limitación de dónde estás abriendo la app, no de tus datos). Abre el enlace de la app directamente en claude.ai con tu sesión iniciada y vuelve a intentarlo, o rellena los datos a mano.", "is-err");
+    }
+  }catch(e){ /* if the check itself fails, leave the box as-is and let a real attempt report the error */ }
+}
+function setScanStatus(prefix, text, state){
+  const el = $("#"+prefix+"-scan-status");
+  if(!el) return;
+  el.textContent = text;
+  el.classList.remove("is-busy","is-ok","is-err");
+  if(state) el.classList.add(state);
+}
+async function runScan(file, prompt, onData, statusPrefix){
+  if(!file) return;
+  if(file.type === "application/pdf" || /\.pdf$/i.test(file.name||"")){
+    setScanStatus(statusPrefix, "Los PDF no se pueden leer aquí. Haz una captura de pantalla de la reserva (o de la página del PDF) y sube esa imagen en su lugar.", "is-err");
+    $("#"+statusPrefix+"-scan-input").value = "";
+    return;
+  }
+  if(!sampleCap){ setScanStatus(statusPrefix, "Esta función no está disponible en esta vista. Prueba a recargar la página.", "is-err"); return; }
+  setScanStatus(statusPrefix, "Analizando la imagen… (puede tardar hasta un minuto)", "is-busy");
+  try{
+    const data = await sampleCap.json(prompt, {images:file});
+    onData(data);
+    setScanStatus(statusPrefix, "✓ Datos rellenados. Revisa que todo esté correcto antes de guardar.", "is-ok");
+  }catch(e){
+    console.warn("TravelApp: fallo al leer la imagen", e);
+    setScanStatus(statusPrefix, scanErrorCopy(e && e.code) + (e && e.code ? "" : " (" + (e && e.message || "error desconocido") + ")"), "is-err");
+  }
+}
+$("#fl-scan-input").addEventListener("change", ()=>{
+  runScan($("#fl-scan-input").files[0], FLIGHT_SCAN_PROMPT, data=>{
+    if(data.airline) $("#fl-airline").value = data.airline;
+    if(data.flightNumber) $("#fl-num").value = String(data.flightNumber).toUpperCase();
+    if(data.fromCode) $("#fl-from").value = String(data.fromCode).toUpperCase();
+    if(data.toCode) $("#fl-to").value = String(data.toCode).toUpperCase();
+    if(data.fromCity) $("#fl-fromcity").value = data.fromCity;
+    if(data.toCity) $("#fl-tocity").value = data.toCity;
+    if(data.date) $("#fl-date").value = data.date;
+    if(data.depart) $("#fl-dep").value = data.depart;
+    if(data.arrive) $("#fl-arr").value = data.arrive;
+    if(data.gate) $("#fl-gate").value = data.gate;
+    if(data.locator) $("#fl-locator").value = String(data.locator).toUpperCase();
+    if(Array.isArray(data.layovers) && data.layovers.length){
+      const txt = "Escalas: " + data.layovers.map(l=>{
+        const place = l.city || l.airportCode || "?";
+        const times = [l.arrive?`llegada ${l.arrive}`:"", l.depart?`salida ${l.depart}`:""].filter(Boolean).join(", ");
+        return times ? `${place} (${times})` : place;
+      }).join("; ");
+      const cur = $("#fl-notes").value.trim();
+      $("#fl-notes").value = cur ? cur + "\n" + txt : txt;
+    }
+  }, "fl");
+});
+$("#btn-del-flight").addEventListener("click", async ()=>{
+  const form = $("#form-flight");
+  const t = trips.find(x=>x.id===form.dataset.tripId);
+  const flights = (t.flights||[]).filter(f=>f.id!==form.dataset.flightId);
+  $("#dlg-flight").close();
+  await saveFlights(t.id, flights);
+  route();
+});
+$("#form-flight").addEventListener("submit", async e=>{
+  e.preventDefault();
+  const form = e.target;
+  const t = trips.find(x=>x.id===form.dataset.tripId);
+  const flights = (t.flights||[]).slice();
+  const data = {
+    airline:$("#fl-airline").value.trim(), flightNumber:$("#fl-num").value.trim().toUpperCase(),
+    fromCode:$("#fl-from").value.trim().toUpperCase(), toCode:$("#fl-to").value.trim().toUpperCase(),
+    fromCity:$("#fl-fromcity").value.trim(), toCity:$("#fl-tocity").value.trim(),
+    date:$("#fl-date").value, depart:$("#fl-dep").value, arrive:$("#fl-arr").value,
+    arriveNextDay:$("#fl-nextday").checked,
+    status:$("#fl-status").value, gate:$("#fl-gate").value.trim(),
+    locator:$("#fl-locator").value.trim().toUpperCase(), notes:$("#fl-notes").value.trim()
+  };
+  if(form.dataset.flightId){
+    const idx = flights.findIndex(f=>f.id===form.dataset.flightId);
+    if(idx>-1) flights[idx] = {...flights[idx], ...data};
+  } else {
+    flights.push({id:uid(), ...data});
+  }
+  $("#dlg-flight").close();
+  await saveFlights(t.id, flights);
+  route();
+});
+
+function openTourDialog(trip, tour){
+  const dlg = $("#dlg-tour"); const form = $("#form-tour");
+  $("#dlg-tour-title").textContent = tour ? "Editar tour" : "Añadir tour / actividad de varios días";
+  form.dataset.tripId = trip.id; form.dataset.tourId = tour ? tour.id : "";
+  $("#tr-title").value = tour ? tour.title : "";
+  $("#tr-place").value = tour ? tour.place||"" : "";
+  $("#tr-start").value = tour ? tour.startDate : trip.startDate;
+  $("#tr-end").value = tour ? tour.endDate : trip.endDate;
+  $("#tr-notes").value = tour ? tour.notes||"" : "";
+  $("#btn-del-tour").hidden = !tour;
+  $("#tr-scan-field").hidden = !sampleCap;
+  $("#tr-scan-input").value = "";
+  $("#tr-scan-input").disabled = false;
+  resetScanStatus("tr");
+  checkScanImageSupport("tr");
+  dlg.showModal();
+}
+$("#tr-scan-input").addEventListener("change", ()=>{
+  runScan($("#tr-scan-input").files[0], TOUR_SCAN_PROMPT, data=>{
+    if(data.title) $("#tr-title").value = data.title;
+    if(data.place) $("#tr-place").value = data.place;
+    if(data.startDate) $("#tr-start").value = data.startDate;
+    if(data.endDate) $("#tr-end").value = data.endDate;
+    if(data.notes){
+      const cur = $("#tr-notes").value.trim();
+      $("#tr-notes").value = cur ? cur + "\n" + data.notes : data.notes;
+    }
+  }, "tr");
+});
+$("#btn-del-tour").addEventListener("click", async ()=>{
+  const form = $("#form-tour");
+  const t = trips.find(x=>x.id===form.dataset.tripId);
+  const tours = (t.tours||[]).filter(tr=>tr.id!==form.dataset.tourId);
+  $("#dlg-tour").close();
+  await saveTours(t.id, tours);
+  route();
+});
+$("#form-tour").addEventListener("submit", async e=>{
+  e.preventDefault();
+  const form = e.target;
+  const t = trips.find(x=>x.id===form.dataset.tripId);
+  const tours = (t.tours||[]).slice();
+  const data = {
+    title:$("#tr-title").value.trim(), place:$("#tr-place").value.trim(),
+    startDate:$("#tr-start").value, endDate:$("#tr-end").value, notes:$("#tr-notes").value.trim()
+  };
+  if(data.endDate < data.startDate) data.endDate = data.startDate;
+  let savedTour;
+  if(form.dataset.tourId){
+    const idx = tours.findIndex(tr=>tr.id===form.dataset.tourId);
+    if(idx>-1){ tours[idx] = {...tours[idx], ...data}; savedTour = tours[idx]; }
+  } else {
+    savedTour = {id:uid(), ...data};
+    tours.push(savedTour);
+  }
+  $("#dlg-tour").close();
+  await saveTours(t.id, tours);
+  if(savedTour) await syncTourItinerary(t, savedTour);
+  route();
+});
+/* Keep a tour's itinerary entries in sync with its own date range, so
+   saving a tour in "Tours" is enough on its own — no separate manual
+   step needed to see it on every day it spans in the calendar. Adds a
+   linked entry to any day inside the range that doesn't have one yet,
+   and removes stray linked entries left on days the range no longer
+   covers (a date edit that shrinks the tour). */
+async function syncTourItinerary(trip, tour){
+  const tourDays = new Set(dateRange(tour.startDate, tour.endDate));
+  const allDates = new Set([...Object.keys(trip.itinerary||{}), ...tourDays]);
+  const patch = {};
+  for(const d of allDates){
+    const dayItems = (trip.itinerary||{})[d] || [];
+    const hasLink = dayItems.some(i=>i.tourId===tour.id);
+    if(tourDays.has(d)){
+      if(!hasLink) patch[d] = [...dayItems, {id:uid(), time:"09:00", type:"tour", title:tour.title, place:tour.place||"", notes:"", tourId:tour.id}];
+    } else if(hasLink){
+      patch[d] = dayItems.filter(i=>i.tourId!==tour.id);
+    }
+  }
+  if(Object.keys(patch).length) await saveItineraryPatch(trip.id, patch);
+}
+
+/* generic dialog close buttons */
+$$("[data-close]").forEach(b=> b.addEventListener("click", ()=> b.closest("dialog").close()));
+$$("dialog").forEach(d=> d.addEventListener("click", e=>{ if(e.target===d) d.close(); }));
+
+init();
+})();
+</script>
