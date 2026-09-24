@@ -4,7 +4,7 @@ Planifica itinerarios día a día, guarda tus vuelos y tours, y descubre los via
 
 ## Qué es
 
-TravelApp es una aplicación web de una sola página (`bitacora.html`) para organizar viajes:
+TravelApp es una aplicación web de una sola página (`travelapp.html`) para organizar viajes:
 
 - **Itinerario día a día**, en vista de lista o de calendario, con título y color personalizados por día.
 - **Vuelos**: aerolínea, número de vuelo, horarios, escalas, número de reserva y estado (a tiempo, retrasado, cancelado...), con autorrelleno a partir de una foto de la reserva.
@@ -18,4 +18,4 @@ Es una única página HTML autocontenida (HTML, CSS y JavaScript en un solo arch
 
 ## Uso
 
-Abre `bitacora.html` publicado como Artifact en [claude.ai](https://claude.ai) (por ejemplo desde la galería en `claude.ai/code/artifacts`) para tener la app completa con guardado y colaboración en tiempo real.
+Abre `travelapp.html` publicado como Artifact en [claude.ai](https://claude.ai) (por ejemplo desde la galería en `claude.ai/code/artifacts`) para tener la app completa con guardado y colaboración en tiempo real.
